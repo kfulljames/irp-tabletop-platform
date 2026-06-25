@@ -81,19 +81,30 @@ def sidebar_client_picker(label="Client / tenant"):
 
 
 def tenant_banner(client):
-    """A sticky green bar pinned to the top showing the active tenant (avoids wrong-tenant uploads)."""
+    """A sticky green bar pinned to the top showing the active tenant (avoids wrong-tenant uploads).
+
+    Uses a keyed container (a direct child of the tall page-scroll block) so `position: sticky`
+    actually holds — a sticky element only stays pinned within its parent's box.
+    """
     name = client["name"] if client else "—"
     st.markdown(
-        f"""
-        <div style="position: sticky; top: 0; z-index: 1000; background: #157347;
-             color: #ffffff; padding: 10px 16px; border-radius: 8px; margin: 0 0 16px 0;
-             font-weight: 600; font-size: 1.05rem;
-             box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
-          🏢 Working in: {name}
-        </div>
+        """
+        <style>
+        .st-key-tenantbar {
+            position: sticky; top: 3.2rem; z-index: 1000;
+            background: #157347; border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.35); margin-bottom: 1rem;
+        }
+        .st-key-tenantbar p {
+            color: #ffffff; font-weight: 600; font-size: 1.05rem;
+            margin: 0; padding: 10px 16px;
+        }
+        </style>
         """,
         unsafe_allow_html=True,
     )
+    with st.container(key="tenantbar"):
+        st.markdown(f"🏢 Working in: {name}")
 
 
 def client_picker(label="Client"):

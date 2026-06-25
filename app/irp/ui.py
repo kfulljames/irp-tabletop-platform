@@ -83,28 +83,29 @@ def sidebar_client_picker(label="Client / tenant"):
 def tenant_banner(client):
     """A sticky green bar pinned to the top showing the active tenant (avoids wrong-tenant uploads).
 
-    Uses a keyed container (a direct child of the tall page-scroll block) so `position: sticky`
-    actually holds — a sticky element only stays pinned within its parent's box.
+    Makes the Streamlit *element wrapper* that contains the bar sticky (via a :has() selector),
+    rather than the inner div. The inner div's parent is too short for sticky to hold; the element
+    wrapper is a direct child of the tall page-scroll block, so sticky pins across the whole page.
+    Selector doesn't depend on Streamlit-generated class names.
     """
     name = client["name"] if client else "—"
     st.markdown(
-        """
+        f"""
         <style>
-        .st-key-tenantbar {
-            position: sticky; top: 3.2rem; z-index: 1000;
-            background: #157347; border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.35); margin-bottom: 1rem;
-        }
-        .st-key-tenantbar p {
-            color: #ffffff; font-weight: 600; font-size: 1.05rem;
-            margin: 0; padding: 10px 16px;
-        }
+        [data-testid="stElementContainer"]:has(#tenant-sticky),
+        .element-container:has(#tenant-sticky) {{
+            position: sticky; top: 0; z-index: 1000;
+            background: #0e1117; padding: 0.4rem 0; margin-bottom: 0.5rem;
+        }}
+        #tenant-sticky {{
+            background: #157347; color: #ffffff; font-weight: 600; font-size: 1.05rem;
+            padding: 10px 16px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.35);
+        }}
         </style>
+        <div id="tenant-sticky">🏢 Working in: {name}</div>
         """,
         unsafe_allow_html=True,
     )
-    with st.container(key="tenantbar"):
-        st.markdown(f"🏢 Working in: {name}")
 
 
 def client_picker(label="Client"):

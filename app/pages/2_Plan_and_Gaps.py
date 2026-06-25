@@ -76,22 +76,44 @@ if gaps:
     st.subheader("3. Review gaps")
     st.caption("Accept the ones to act on, or dismiss. Accepted gaps feed the change punch-list.")
     sev_color = {"high": "🔴", "medium": "🟠", "low": "🟡", "none": "⚪"}
-    for g in gaps:
-        chapter = BASELINE_BY_KEY.get(g["baseline_key"], (g["baseline_key"], ""))[0]
+
+    pending = [g for g in gaps if g["status"] == "ai_suggested"]
+    decided = [g for g in gaps if g["status"] != "ai_suggested"]
+
+    def chapter_name(g):
+        return BASELINE_BY_KEY.get(g["baseline_key"], (g["baseline_key"], ""))[0]
+
+    # Pending gaps — full cards with Accept / Dismiss.
+    for g in pending:
         with st.container(border=True):
             top = st.columns([6, 1, 1])
             top[0].markdown(
-                f"{sev_color.get(g['severity'], '⚪')} **{chapter}** — _{g['severity']}_  \n"
+                f"{sev_color.get(g['severity'], '⚪')} **{chapter_name(g)}** — _{g['severity']}_  \n"
                 f"{g['description']}"
             )
             if g["recommended_change"]:
                 top[0].markdown(f"➡️ _Recommended:_ {g['recommended_change']}")
-            top[0].caption(f"Status: {g['status']}")
             if top[1].button("Accept", key=f"acc_{g['id']}"):
                 db.set_gap_status(g["id"], "validated")
                 st.rerun()
             if top[2].button("Dismiss", key=f"dis_{g['id']}"):
                 db.set_gap_status(g["id"], "dismissed")
+                st.rerun()
+
+    if not pending and decided:
+        st.success("All gaps reviewed. ✅")
+
+    # Decided gaps — minimized green (accepted) / red (dismissed) lines with Reopen.
+    if decided:
+        st.markdown("**Reviewed**")
+        for g in decided:
+            row = st.columns([8, 1])
+            if g["status"] == "validated":
+                row[0].success(f"✅ **{chapter_name(g)}** — accepted · _{g['severity']}_")
+            else:
+                row[0].error(f"❌ **{chapter_name(g)}** — dismissed")
+            if row[1].button("Reopen", key=f"re_{g['id']}"):
+                db.set_gap_status(g["id"], "ai_suggested")
                 st.rerun()
 
     accepted = [g for g in gaps if g["status"] == "validated"]

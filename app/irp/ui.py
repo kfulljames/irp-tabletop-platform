@@ -13,7 +13,16 @@ def hide_running_indicator():
     st.spinner still shows during long operations like the gap analysis.
     """
     st.markdown(
-        "<style>[data-testid='stStatusWidget']{visibility:hidden;}</style>",
+        """
+        <style>
+        [data-testid='stStatusWidget']{visibility:hidden;}
+        /* Give bordered cards a soft floating shadow */
+        [data-testid='stVerticalBlockBorderWrapper']{
+            box-shadow: 0 2px 8px rgba(0,0,0,0.28);
+            border-radius: 10px;
+        }
+        </style>
+        """,
         unsafe_allow_html=True,
     )
 

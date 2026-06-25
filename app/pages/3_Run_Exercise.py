@@ -128,61 +128,64 @@ obs_names = " · ".join(p["full_name"] for p in observers)
 st.caption(f"👥 In the room: {names}" + (f"   |   👁️ Observers: {obs_names}" if obs_names else ""))
 
 st.divider()
-left, right = st.columns([1, 1])
 
-# --- LEFT: inject deck ---
-with left:
-    st.subheader("Inject deck")
-    if injects:
-        idx = max(0, min(run["current_inject"], len(injects) - 1))
-        inj = injects[idx]
-        nav = st.columns([1, 2, 1])
-        if nav[0].button("◀ Prev", disabled=idx == 0):
-            db.set_current_inject(run["id"], idx - 1)
-            st.rerun()
-        nav[1].markdown(f"<div style='text-align:center'>Inject <b>{idx + 1}</b> of {len(injects)}"
-                        f" · <i>{inj['category']}</i></div>", unsafe_allow_html=True)
-        if nav[2].button("Next ▶", disabled=idx >= len(injects) - 1):
-            new_idx = idx + 1
-            db.set_current_inject(run["id"], new_idx)
-            db.add_event(run["id"], "Inject", None,
-                         f"Inject {new_idx + 1}: {injects[new_idx]['title']}", timezone=run_tz)
-            st.rerun()
+# --- Inject deck (full-width hero card) ---
+st.subheader("Inject deck")
+if injects:
+    idx = max(0, min(run["current_inject"], len(injects) - 1))
+    inj = injects[idx]
+    nav = st.columns([1, 3, 1, 4])
+    if nav[0].button("◀ Prev", disabled=idx == 0, use_container_width=True):
+        db.set_current_inject(run["id"], idx - 1)
+        st.rerun()
+    nav[1].markdown(f"<div style='text-align:center;padding-top:6px'>Inject "
+                    f"<b>{idx + 1}</b> of {len(injects)} · <i>{inj['category']}</i></div>",
+                    unsafe_allow_html=True)
+    if nav[2].button("Next ▶", disabled=idx >= len(injects) - 1, use_container_width=True):
+        new_idx = idx + 1
+        db.set_current_inject(run["id"], new_idx)
+        db.add_event(run["id"], "Inject", None,
+                     f"Inject {new_idx + 1}: {injects[new_idx]['title']}", timezone=run_tz)
+        st.rerun()
 
-        with st.container(border=True):
-            st.markdown(f"### {inj['title']}")
-            st.markdown(inj["room"])
-        with st.expander("🎙️ Facilitator guidance (don't read aloud)"):
-            st.markdown(inj["guidance"])
-    else:
-        st.info("This scenario has no injects authored yet.")
+    with st.container(border=True):
+        st.markdown(f"### {inj['title']}")
+        st.markdown(
+            f"<div style='font-size:1.15rem; line-height:1.7;'>{inj['room']}</div>",
+            unsafe_allow_html=True,
+        )
+    with st.expander("🎙️ Facilitator guidance (don't read aloud)"):
+        st.markdown(inj["guidance"])
+else:
+    st.info("This scenario has no injects authored yet.")
 
-# --- RIGHT: capture ---
-with right:
-    st.subheader("Capture")
-    actor_opts = {f"{p['full_name']} ({p['incident_role'] or p['title'] or 'participant'})": p["id"]
-                  for p in actors}
-    actor_opts["Facilitator (you)"] = None
+# --- Capture (full width) ---
+st.divider()
+st.subheader("Capture")
+actor_opts = {f"{p['full_name']} ({p['incident_role'] or p['title'] or 'participant'})": p["id"]
+              for p in actors}
+actor_opts["Facilitator (you)"] = None
 
-    # Capture type as a row of buttons (faster + reads better than a dropdown).
-    TYPE_BUTTONS = [
-        ("Business decision", "⚖️ Decision"),
-        ("Comms decision", "📣 Comms"),
-        ("Task (assigned out)", "🛠️ Task"),
-        ("Status update", "📋 Status"),
-        ("Note / plan gap", "📝 Plan gap"),
-    ]
-    sel_key = f"ctype_{run['id']}"
-    active = st.session_state.get(sel_key, TYPE_BUTTONS[0][0])
-    st.caption("What happened? Pick a type:")
-    bcols = st.columns(len(TYPE_BUTTONS))
-    for i, (t, label) in enumerate(TYPE_BUTTONS):
-        if bcols[i].button(label, key=f"typ_{run['id']}_{i}", use_container_width=True,
-                           type="primary" if t == active else "secondary"):
-            st.session_state[sel_key] = t
-            st.rerun()
-    ctype = st.session_state.get(sel_key, TYPE_BUTTONS[0][0])
+# Capture type as a row of buttons (faster + reads better than a dropdown).
+TYPE_BUTTONS = [
+    ("Business decision", "⚖️ Decision"),
+    ("Comms decision", "📣 Comms"),
+    ("Task (assigned out)", "🛠️ Task"),
+    ("Status update", "📋 Status"),
+    ("Note / plan gap", "📝 Plan gap"),
+]
+sel_key = f"ctype_{run['id']}"
+active = st.session_state.get(sel_key, TYPE_BUTTONS[0][0])
+st.caption("What happened? Pick a type:")
+bcols = st.columns(len(TYPE_BUTTONS))
+for i, (t, label) in enumerate(TYPE_BUTTONS):
+    if bcols[i].button(label, key=f"typ_{run['id']}_{i}", use_container_width=True,
+                       type="primary" if t == active else "secondary"):
+        st.session_state[sel_key] = t
+        st.rerun()
+ctype = st.session_state.get(sel_key, TYPE_BUTTONS[0][0])
 
+with st.container(border=True):
     with st.form(f"cap_{run['id']}", clear_on_submit=True):
         st.markdown(f"**{ctype}**")
         act_label = st.selectbox(

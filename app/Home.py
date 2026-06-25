@@ -39,7 +39,7 @@ col1, col2 = st.columns(2)
 col1.metric("Clients", len(clients))
 plans = 0
 for c in clients:
-    if db.latest_plan_for_client(c["id"]):
+    if db.list_documents(c["id"]):
         plans += 1
 col2.metric("Clients with an ingested plan", plans)
 

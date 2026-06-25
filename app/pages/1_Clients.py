@@ -31,8 +31,8 @@ if not clients:
     st.info("No clients yet.")
 else:
     for c in clients:
-        plan = db.latest_plan_for_client(c["id"])
-        status = f"plan ingested ({plan['source_filename']})" if plan else "no plan yet"
+        ndocs = len(db.list_documents(c["id"]))
+        status = f"{ndocs} document(s)" if ndocs else "no documents yet"
         with st.expander(f"{c['name']}  ·  {status}"):
             with st.form(f"edit_{c['id']}"):
                 new_name = st.text_input("Name", value=c["name"], key=f"name_{c['id']}")

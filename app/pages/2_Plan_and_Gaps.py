@@ -11,46 +11,65 @@ api_key = sidebar_api_key()
 
 st.title("Plan & Gaps")
 st.caption(
-    "Upload the client's IRP/BCP, then run an AI gap analysis against the best-practice "
-    "baseline. The AI proposes; you review and accept (suggest-only, human-approved)."
+    "Upload the client's plan documents (e.g. the policy AND the procedure, or an IRP and a "
+    "BCP), then run one AI gap analysis across all of them. The AI proposes; you review and "
+    "accept (suggest-only, human-approved)."
 )
 
 client_id = client_picker()
 if client_id is None:
     st.stop()
 
-# --- Upload / ingest ------------------------------------------------------
-st.subheader("1. Ingest the plan")
-existing = db.latest_plan_for_client(client_id)
-if existing:
-    st.success(f"Current plan: **{existing['source_filename']}** "
-               f"(uploaded {existing['uploaded_at']}).")
+# --- 1. Ingest documents --------------------------------------------------
+st.subheader("1. Ingest the plan documents")
 
-uploaded = st.file_uploader("Upload an IRP or BCP (PDF)", type=["pdf"])
-kind = st.radio("Document type", ["IRP", "BCP"], horizontal=True)
-if uploaded is not None and st.button("Ingest plan"):
-    with st.spinner("Extracting text…"):
-        text = extract_text(uploaded.getvalue())
-    if not text:
-        st.error("Couldn't extract text from this PDF (it may be a scanned image).")
-    else:
-        plan_id = db.create_plan(client_id, kind, uploaded.name, text)
-        st.session_state[f"plan_{client_id}"] = plan_id
-        st.success(f"Ingested {uploaded.name} ({len(text):,} characters). Now run the gap analysis below.")
-        existing = db.latest_plan_for_client(client_id)
+docs = db.list_documents(client_id)
+if docs:
+    st.markdown("**Documents on file** (all are read together):")
+    for d in docs:
+        cols = st.columns([7, 2, 1])
+        cols[0].markdown(f"📄 **{d['source_filename']}**")
+        cols[1].caption(f"{len(d['full_text'] or ''):,} chars")
+        if cols[2].button("Remove", key=f"rmdoc_{d['id']}"):
+            db.delete_document(d["id"])
+            st.rerun()
+else:
+    st.info("No documents yet — upload at least one below.")
 
-if not existing:
-    st.info("Ingest a plan to enable the gap analysis.")
+uploaded = st.file_uploader(
+    "Upload one or more PDFs (policy, procedure, IRP, BCP…)",
+    type=["pdf"],
+    accept_multiple_files=True,
+)
+default_label = st.text_input(
+    "Label for these uploads (optional)", placeholder="e.g. Policy, Procedure, IRP, BCP"
+)
+if uploaded and st.button("Add document(s)"):
+    added, skipped = 0, []
+    for f in uploaded:
+        text = extract_text(f.getvalue())
+        if text:
+            db.add_document(client_id, default_label.strip() or None, f.name, text)
+            added += 1
+        else:
+            skipped.append(f.name)
+    if added:
+        st.success(f"Added {added} document(s).")
+    if skipped:
+        st.warning("Couldn't extract text (scanned image?): " + ", ".join(skipped))
+    st.rerun()
+
+docs = db.list_documents(client_id)
+if not docs:
     st.stop()
 
-plan = existing
-with st.expander("Preview extracted plan text"):
-    st.text((plan["full_text"] or "")[:6000] or "(empty)")
+with st.expander("Preview combined text the AI will read"):
+    st.text(db.combined_text(client_id)[:8000] or "(empty)")
 
-# --- AI gap analysis ------------------------------------------------------
+# --- 2. AI gap analysis ---------------------------------------------------
 st.subheader("2. AI gap analysis")
-st.caption(f"Runs on Anthropic ({selected_model()} — change it in the sidebar). "
-           "No training on your data.")
+st.caption(f"Reads all {len(docs)} document(s) together. Runs on Anthropic "
+           f"({selected_model()} — change it in the sidebar). No training on your data.")
 
 if st.button("Run AI gap analysis", type="primary"):
     if not api_key:
@@ -59,22 +78,22 @@ if st.button("Run AI gap analysis", type="primary"):
         try:
             with st.spinner("Analyzing the plan against the baseline… (~30s)"):
                 analysis = ai.analyze_plan(
-                    plan["full_text"], api_key=api_key, model=selected_model()
+                    db.combined_text(client_id), api_key=api_key, model=selected_model()
                 )
                 sections, gaps = ai.analysis_to_db_rows(analysis)
-                db.save_sections(plan["id"], sections)
-                db.replace_ai_gaps(client_id, plan["id"], gaps)
-            st.session_state[f"overall_{plan['id']}"] = analysis.overall_notes
+                db.save_sections(client_id, sections)
+                db.replace_ai_gaps(client_id, gaps)
+            st.session_state[f"overall_{client_id}"] = analysis.overall_notes
             st.success(f"Done — {len(gaps)} gaps found across {len(sections)} chapters.")
         except Exception as e:
             st.error(f"Analysis failed: {e}")
 
-overall = st.session_state.get(f"overall_{plan['id']}")
+overall = st.session_state.get(f"overall_{client_id}")
 if overall:
     st.info(f"**Overall read:** {overall}")
 
-# --- Review gaps ----------------------------------------------------------
-gaps = db.gaps_for_plan(plan["id"])
+# --- 3. Review gaps -------------------------------------------------------
+gaps = db.gaps_for_client(client_id)
 if gaps:
     st.subheader("3. Review gaps")
     st.caption("Accept the ones to act on, or dismiss. Accepted gaps feed the change punch-list.")
@@ -86,7 +105,6 @@ if gaps:
     def chapter_name(g):
         return BASELINE_BY_KEY.get(g["baseline_key"], (g["baseline_key"], ""))[0]
 
-    # Pending gaps — full cards with Accept / Dismiss.
     for g in pending:
         with st.container(border=True):
             top = st.columns([6, 1, 1])
@@ -106,7 +124,6 @@ if gaps:
     if not pending and decided:
         st.success("All gaps reviewed. ✅")
 
-    # Decided gaps — minimized green (accepted) / red (dismissed) lines with Reopen.
     if decided:
         st.markdown("**Reviewed**")
         for g in decided:
@@ -125,7 +142,7 @@ if gaps:
         st.caption("This is the actionable output a facilitator hands off for plan updates (B5).")
         st.table([
             {
-                "chapter": BASELINE_BY_KEY.get(g["baseline_key"], (g["baseline_key"],))[0],
+                "chapter": chapter_name(g),
                 "severity": g["severity"],
                 "change": g["recommended_change"] or g["description"],
             }

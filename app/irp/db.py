@@ -146,6 +146,11 @@ def list_documents(client_org_id):
         ).fetchall()
 
 
+def update_document_label(doc_id, label):
+    with get_conn() as conn:
+        conn.execute("UPDATE document SET label = ? WHERE id = ?", (label, doc_id))
+
+
 def delete_document(doc_id):
     with get_conn() as conn:
         conn.execute("DELETE FROM document WHERE id = ?", (doc_id,))

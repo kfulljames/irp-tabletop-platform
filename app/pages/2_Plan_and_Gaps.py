@@ -20,50 +20,71 @@ client_id = client_picker()
 if client_id is None:
     st.stop()
 
-# --- 1. Ingest documents --------------------------------------------------
-st.subheader("1. Ingest the plan documents")
+# --- 1. Plan documents ----------------------------------------------------
+st.subheader("1. Plan documents")
 
+DOC_TYPES = ["Policy", "Procedure", "IRP", "BCP", "Other"]
+
+
+def guess_type(filename: str) -> str:
+    n = filename.lower()
+    if "polic" in n:
+        return "Policy"
+    if "procedure" in n or "contact" in n:
+        return "Procedure"
+    if "continuity" in n or "bcp" in n or "disaster" in n or "recovery" in n:
+        return "BCP"
+    if "incident" in n or "irp" in n:
+        return "IRP"
+    return "Other"
+
+
+# Existing documents, shown as tidy cards.
 docs = db.list_documents(client_id)
 if docs:
-    st.markdown("**Documents on file** (all are read together):")
+    st.caption("These are read together as one plan. Set each one's type, or remove it.")
     for d in docs:
-        cols = st.columns([7, 2, 1])
-        cols[0].markdown(f"📄 **{d['source_filename']}**")
-        cols[1].caption(f"{len(d['full_text'] or ''):,} chars")
-        if cols[2].button("Remove", key=f"rmdoc_{d['id']}"):
-            db.delete_document(d["id"])
-            st.rerun()
-else:
-    st.info("No documents yet — upload at least one below.")
+        with st.container(border=True):
+            c = st.columns([6, 2.5, 0.8])
+            c[0].markdown(f"📄 **{d['source_filename']}**")
+            c[0].caption(f"✓ text extracted · {len(d['full_text'] or ''):,} characters")
+            cur = d["label"] if d["label"] in DOC_TYPES else "Other"
+            picked = c[1].selectbox(
+                "Type", DOC_TYPES, index=DOC_TYPES.index(cur),
+                key=f"lbl_{d['id']}", label_visibility="collapsed",
+            )
+            if picked != (d["label"] or "Other"):
+                db.update_document_label(d["id"], picked)
+            if c[2].button("🗑️", key=f"rm_{d['id']}", help="Remove this document"):
+                db.delete_document(d["id"])
+                st.rerun()
 
-uploaded = st.file_uploader(
-    "Upload one or more PDFs (policy, procedure, IRP, BCP…)",
-    type=["pdf"],
-    accept_multiple_files=True,
+# Drag-and-drop dropzone that resets after adding.
+rev = st.session_state.get("uprev", 0)
+files = st.file_uploader(
+    "Drag & drop the plan PDFs here  —  or click to browse",
+    type=["pdf"], accept_multiple_files=True, key=f"up_{client_id}_{rev}",
 )
-default_label = st.text_input(
-    "Label for these uploads (optional)", placeholder="e.g. Policy, Procedure, IRP, BCP"
-)
-if uploaded and st.button("Add document(s)"):
-    added, skipped = 0, []
-    for f in uploaded:
-        text = extract_text(f.getvalue())
-        if text:
-            db.add_document(client_id, default_label.strip() or None, f.name, text)
-            added += 1
-        else:
-            skipped.append(f.name)
-    if added:
-        st.success(f"Added {added} document(s).")
-    if skipped:
-        st.warning("Couldn't extract text (scanned image?): " + ", ".join(skipped))
-    st.rerun()
+if files:
+    if st.button(f"➕ Add {len(files)} document(s)", type="primary"):
+        skipped = []
+        for f in files:
+            text = extract_text(f.getvalue())
+            if text:
+                db.add_document(client_id, guess_type(f.name), f.name, text)
+            else:
+                skipped.append(f.name)
+        if skipped:
+            st.warning("Couldn't read (scanned image?): " + ", ".join(skipped))
+        st.session_state["uprev"] = rev + 1   # reset the dropzone
+        st.rerun()
 
 docs = db.list_documents(client_id)
 if not docs:
+    st.info("Add the client's plan documents above to get started.")
     st.stop()
 
-with st.expander("Preview combined text the AI will read"):
+with st.expander("Preview the combined text the AI will read"):
     st.text(db.combined_text(client_id)[:8000] or "(empty)")
 
 # --- 2. AI gap analysis ---------------------------------------------------

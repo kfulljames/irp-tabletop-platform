@@ -27,7 +27,7 @@ the **Lovable + Supabase** stack (B0). v1 = tabletop exercises; v2 = real incide
 
 **Explicitly deferred (fast-follow or v2):**
 - Tracked-changes redline rendering (post-v1; data captured now — B5).
-- Full white-label theming (Q36 — v1 ships the MSP/the PR partner co-brand; _see open Q-D4_).
+- Full white-label theming (Q36 — v1 ships the MSP/the PR partner co-brand; theming Phase 2, Q-D4).
 - Automated cadence/reminders (Q29).
 - Two-way ControlMap sync (Q28), SMS/WhatsApp (Q39), real-incident mode (Q21), searchable
   incident knowledge base — all **v2**.
@@ -103,7 +103,7 @@ _Core tables. `*` = tenant-scoping column for RLS._
 
 **Runs (engagements/sessions)**
 - `run` (id, client_org_id*, scenario_id, facilitator_id, status `scheduled|running|complete`,
-  scheduled_for, started_at, resolved_at) — real clock (B10); _engagement vs session: see open Q-D1_
+  scheduled_for, started_at, resolved_at) — real clock (B10); one run = one session (Q-D1)
 - `run_role_slot_binding` (run_id, slot_key, person_id) — named-people personalization (B7)
 - `run_participant` (run_id, person_id, role `participant|observer`, is_remote, joined_at) (B11)
 - `run_role_assignment` (run_id, person_id, incident_role, assigned_at, ended_at) — role history (Q34)
@@ -220,16 +220,16 @@ exercise knowledge base; the holding company portfolio rollout.
 
 ---
 
-## 8. Open questions surfaced by drafting
+## 8. Resolved (drafting questions Q-D1–Q-D4, 2026-06-25)
 
-Batched for decision (defaults proposed above marked _see open Q-Dn_):
-- **Q-D1 — Engagement vs session:** is a `run` a single session, or a container that can span
-  multiple sessions over time? (proposed: single session = one run; repeat engagements = new runs.)
-- **Q-D2 — Participant identity:** must participants exist as `person` roster records first
-  (invite known people), or can someone self-join a run without a roster entry? (proposed:
-  roster-first; magic-link invites a roster person.)
-- **Q-D3 — Client visibility:** does the client org get any app access to their own evidence
-  report / readiness trend, or is everything facilitator-delivered (exported file) in v1?
-  (proposed: facilitator-delivered only in v1; client portal later.)
-- **Q-D4 — v1 branding:** ship MVP with fixed the MSP/the PR partner co-brand and treat full white-label
-  as Phase 2, or build the theming engine into v1? (proposed: co-brand v1, theming Phase 2.)
+- **Q-D1 — Run = single session.** One `run` = one session. Repeat engagements over time are new
+  runs against the same client org; the readiness trend strings them together. (Multi-session
+  containers not needed in v1.)
+- **Q-D2 — Roster-first invite.** Participants must exist as `person` roster records (from the
+  setup wizard) before a run; the magic link invites a known roster person. Keeps act-as
+  attribution + evidence clean. No open self-join in v1.
+- **Q-D3 — Facilitator-delivered only.** Clients receive the exported report file; no client
+  login to evidence/trend in v1 (Client Admins can still pre-fill setup data). Client portal = later.
+- **Q-D4 — Co-brand v1, theming Phase 2.** MVP ships a fixed the MSP/the PR partner co-brand; the full
+  white-label theming engine (Q36) is Phase 2. `branding_config` columns exist now so theming
+  drops in without a schema change.

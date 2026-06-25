@@ -14,7 +14,10 @@ _Last updated: 2026-06-25 • Owner: the CTO  (CTO, the MSP)_
   cadence/reminders, SMS/WhatsApp + real-incident mode.
 - **Source review done:** sample report, the MSP IRP/BCP, CISA CTEP, competitor (Exigence/Field
   Effect) + 6 Exigence/Spiceworks articles distilled into `04-REFERENCE-NOTES.md`.
-- **Next:** draft `03-PRODUCT-REQUIREMENTS.md` (v1 feature spec + roadmap) from the decisions;
+- **Build round done:** B0–B15 (`01-DECISIONS-LOG.md`) — stack, tenancy, data shape, capture model.
+- **Requirements drafted:** `03-PRODUCT-REQUIREMENTS.md` — v1 spec, Supabase data model, screen
+  flows, phased roadmap; drafting questions Q-D1–Q-D4 resolved.
+- **Next:** begin build on Lovable + Supabase (data model → setup wizard → BEC run → evidence);
   open business item parked = data residency / SOC 2 posture (Q24).
 
 ## What we're building

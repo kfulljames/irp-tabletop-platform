@@ -3,7 +3,7 @@ import json
 import streamlit as st
 
 from irp import db
-from irp.scenarios import SCENARIOS, INCIDENT_ROLES, CAPTURE_TYPES
+from irp.scenarios import SCENARIOS, INCIDENT_ROLES
 from irp.ui import sidebar_api_key, sidebar_client_picker, tenant_banner
 
 st.set_page_config(page_title="Run Exercise · IRP Tabletop", page_icon="🛡️", layout="wide")
@@ -164,10 +164,32 @@ with right:
                   for p in actors}
     actor_opts["Facilitator (you)"] = None
 
-    ctype = st.selectbox("What happened?", CAPTURE_TYPES, key=f"ctype_{run['id']}")
+    # Capture type as a row of buttons (faster + reads better than a dropdown).
+    TYPE_BUTTONS = [
+        ("Business decision", "⚖️ Decision"),
+        ("Comms decision", "📣 Comms"),
+        ("Task (assigned out)", "🛠️ Task"),
+        ("Status update", "📋 Status"),
+        ("Note / plan gap", "📝 Plan gap"),
+    ]
+    sel_key = f"ctype_{run['id']}"
+    active = st.session_state.get(sel_key, TYPE_BUTTONS[0][0])
+    st.caption("What happened? Pick a type:")
+    bcols = st.columns(len(TYPE_BUTTONS))
+    for i, (t, label) in enumerate(TYPE_BUTTONS):
+        if bcols[i].button(label, key=f"typ_{run['id']}_{i}", use_container_width=True,
+                           type="primary" if t == active else "secondary"):
+            st.session_state[sel_key] = t
+            st.rerun()
+    ctype = st.session_state.get(sel_key, TYPE_BUTTONS[0][0])
+
     with st.form(f"cap_{run['id']}", clear_on_submit=True):
-        act_label = st.selectbox("Acting as", list(actor_opts.keys()),
-                                 help="Log the action on behalf of the person who made it (Q6).")
+        st.markdown(f"**{ctype}**")
+        act_label = st.selectbox(
+            "Acting as", list(actor_opts.keys()),
+            help="The facilitator logs each action on behalf of the person who made it (Q6). "
+                 "When participants log in themselves, this auto-fills to them.",
+        )
         desc, payload, gap = "", None, None
 
         if ctype == "Business decision":

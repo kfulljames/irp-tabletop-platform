@@ -32,6 +32,20 @@ CAPTURE_TYPES = [
     "Note / plan gap",
 ]
 
+# Incident lifecycle phases for the phase tracker (Exigence-style).
+PHASES = ["Detection", "Investigation", "Containment", "Communication", "Legal/Regulatory", "Recovery"]
+
+# Map an inject's category to the lifecycle phase it represents (drives the phase bar).
+CATEGORY_TO_PHASE = {
+    "Detection": "Detection",
+    "Escalation": "Investigation",
+    "Decision": "Containment",
+    "Comms": "Communication",
+    "Containment": "Containment",
+    "Legal": "Legal/Regulatory",
+    "Recovery": "Recovery",
+}
+
 BEC = {
     "key": "bec",
     "title": "Business Email Compromise — fraudulent invoice / payment diversion",
@@ -148,6 +162,23 @@ BEC = {
                 "those as plan-gap notes — they feed the punch-list and the evidence report."
             ),
         },
+    ],
+    # Lean task library grouped by phase (B-checklist; kept short to avoid clutter).
+    "tasks": [
+        ("Detection", "Document the details of the detection"),
+        ("Detection", "Confirm whether a mailbox/account is compromised"),
+        ("Investigation", "Identify which accounts/systems were accessed, and from where"),
+        ("Investigation", "Determine whether funds left the account; engage the bank"),
+        ("Containment", "Reset credentials and enforce MFA on affected accounts"),
+        ("Containment", "Remove malicious inbox rules / forwarding"),
+        ("Containment", "Engage forensics / IR partner (decide owner)"),
+        ("Communication", "Warn all clients to verify banking details before paying"),
+        ("Communication", "Approve external / PR messaging (engage PR partner)"),
+        ("Legal/Regulatory", "Determine data / PII exposure scope with counsel"),
+        ("Legal/Regulatory", "Assess breach-notification obligations and deadlines"),
+        ("Recovery", "Notify cyber insurer and engage breach counsel"),
+        ("Recovery", "Produce written summary for the affected client"),
+        ("Recovery", "Capture plan gaps and corrective actions"),
     ],
 }
 

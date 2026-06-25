@@ -3,7 +3,7 @@ import json
 import streamlit as st
 
 from irp import db
-from irp.scenarios import SCENARIOS, INCIDENT_ROLES
+from irp.scenarios import SCENARIOS, INCIDENT_ROLES, PHASES, CATEGORY_TO_PHASE
 from irp.ui import sidebar_api_key, sidebar_client_picker, tenant_banner
 
 st.set_page_config(page_title="Run Exercise · IRP Tabletop", page_icon="🛡️", layout="wide")
@@ -92,6 +92,7 @@ if not active:
         for lab in chosen_obs:
             if lab not in chosen_parts:
                 db.add_participant(run_id, opts[lab], "observer")
+        db.seed_tasks(run_id, scenario.get("tasks", []))
         db.add_event(run_id, "Incident start", None,
                      f"Exercise started: {scenario['title']}", timezone=tz)
         st.rerun()
@@ -127,13 +128,79 @@ names = " · ".join(p["full_name"] for p in actors) or "—"
 obs_names = " · ".join(p["full_name"] for p in observers)
 st.caption(f"👥 In the room: {names}" + (f"   |   👁️ Observers: {obs_names}" if obs_names else ""))
 
+# Current inject (computed once; used by phase bar + deck).
+idx, inj = 0, None
+if injects:
+    idx = max(0, min(run["current_inject"], len(injects) - 1))
+    inj = injects[idx]
+
+# --- Phase tracker (thin, always on) ---
+cur_phase = CATEGORY_TO_PHASE.get(inj["category"], "") if inj else ""
+chips = []
+for ph in PHASES:
+    on = (ph == cur_phase)
+    chips.append(
+        f"<span style='display:inline-block;padding:5px 12px;margin:2px;border-radius:14px;"
+        f"font-size:0.86rem;font-weight:600;"
+        f"background:{'#157347' if on else '#2b2f36'};"
+        f"color:{'#fff' if on else '#9aa0a6'};'>{ph}</span>"
+    )
+st.markdown("&nbsp;&nbsp;".join(chips), unsafe_allow_html=True)
+
+# --- Overview + Task checklist (collapsed to keep the view simple) ---
+with st.expander("📋 Overview — feeds the evidence report"):
+    ov = db.get_overview(run["id"])
+    with st.form(f"ov_{run['id']}"):
+        latest_status = st.text_area("Latest status", value=ov.get("latest_status", ""),
+                                     placeholder="e.g. Identifying scope and containing the compromise.")
+        detection_summary = st.text_input("Detection summary", value=ov.get("detection_summary", ""),
+                                          placeholder="e.g. Client reported payment to fraudulent bank details.")
+        c1, c2 = st.columns(2)
+        how_discovered = c1.text_input("How discovered", value=ov.get("how_discovered", ""))
+        when_discovered = c2.text_input("When discovered", value=ov.get("when_discovered", ""))
+        who_discovered = c1.text_input("Who discovered it", value=ov.get("who_discovered", ""))
+        impacted = c2.text_input("Users / assets impacted", value=ov.get("impacted", ""))
+        history = st.text_area("Other pertinent history", value=ov.get("history", ""))
+        if st.form_submit_button("Save overview"):
+            db.save_overview(run["id"], {
+                "latest_status": latest_status, "detection_summary": detection_summary,
+                "how_discovered": how_discovered, "when_discovered": when_discovered,
+                "who_discovered": who_discovered, "impacted": impacted, "history": history,
+            })
+            st.success("Overview saved.")
+
+with st.expander("✅ Incident task checklist (optional)"):
+    tasks = db.list_tasks(run["id"])
+    if not tasks and scenario.get("tasks"):   # seed runs that predate the checklist
+        db.seed_tasks(run["id"], scenario["tasks"])
+        tasks = db.list_tasks(run["id"])
+    done_n = sum(1 for t in tasks if t["status"] == "done")
+    st.caption(f"{done_n}/{len(tasks)} done — tick off steps as the room covers them.")
+    with st.form(f"tasks_{run['id']}"):
+        new_vals = {}
+        last_phase = None
+        for t in tasks:
+            if t["phase"] != last_phase:
+                st.markdown(f"**{t['phase']}**")
+                last_phase = t["phase"]
+            cc = st.columns([0.6, 6, 3])
+            done = cc[0].checkbox("done", value=(t["status"] == "done"),
+                                  key=f"tk_{t['id']}", label_visibility="collapsed")
+            title_md = f"~~{t['title']}~~" if done else t["title"]
+            cc[1].markdown(title_md)
+            asg = cc[2].text_input("assignee", value=t["assignee"] or "", key=f"ta_{t['id']}",
+                                   placeholder="assign to…", label_visibility="collapsed")
+            new_vals[t["id"]] = ("done" if done else "pending", asg)
+        if st.form_submit_button("Save checklist"):
+            for tid, (stat, asg) in new_vals.items():
+                db.set_task(tid, stat, asg)
+            st.rerun()
+
 st.divider()
 
 # --- Inject deck (full-width hero card) ---
 st.subheader("Inject deck")
 if injects:
-    idx = max(0, min(run["current_inject"], len(injects) - 1))
-    inj = injects[idx]
     nav = st.columns([1, 3, 1, 4])
     if nav[0].button("◀ Prev", disabled=idx == 0, use_container_width=True):
         db.set_current_inject(run["id"], idx - 1)

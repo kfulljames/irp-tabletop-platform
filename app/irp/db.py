@@ -101,6 +101,30 @@ CREATE TABLE IF NOT EXISTS run_participant (
     role      TEXT NOT NULL DEFAULT 'participant'  -- participant | observer
 );
 
+-- Structured Overview for the run (Exigence-style; feeds report Sec 3).
+CREATE TABLE IF NOT EXISTS run_overview (
+    run_id            INTEGER PRIMARY KEY REFERENCES run(id) ON DELETE CASCADE,
+    latest_status     TEXT,
+    detection_summary TEXT,
+    how_discovered    TEXT,
+    when_discovered   TEXT,
+    who_discovered    TEXT,
+    impacted          TEXT,
+    history           TEXT,
+    updated_at        TEXT
+);
+
+-- Incident task checklist (seeded per scenario, grouped by phase; report Sec 5).
+CREATE TABLE IF NOT EXISTS run_task (
+    id       INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id   INTEGER NOT NULL REFERENCES run(id) ON DELETE CASCADE,
+    phase    TEXT,
+    title    TEXT NOT NULL,
+    assignee TEXT,
+    status   TEXT NOT NULL DEFAULT 'pending',   -- pending | done
+    sort     INTEGER NOT NULL DEFAULT 0
+);
+
 -- Typed capture (B9) — the timestamped evidence spine (Q4, report spec Sec 6).
 CREATE TABLE IF NOT EXISTS timeline_event (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -411,3 +435,69 @@ def list_events(run_id, newest_first=True):
 def delete_event(event_id):
     with get_conn() as conn:
         conn.execute("DELETE FROM timeline_event WHERE id = ?", (event_id,))
+
+
+# ---- overview ------------------------------------------------------------
+OVERVIEW_FIELDS = ["latest_status", "detection_summary", "how_discovered",
+                   "when_discovered", "who_discovered", "impacted", "history"]
+
+
+def get_overview(run_id):
+    with get_conn() as conn:
+        row = conn.execute("SELECT * FROM run_overview WHERE run_id = ?", (run_id,)).fetchone()
+    return dict(row) if row else {}
+
+
+def save_overview(run_id, fields):
+    cols = ", ".join(OVERVIEW_FIELDS)
+    placeholders = ", ".join("?" for _ in OVERVIEW_FIELDS)
+    updates = ", ".join(f"{f} = excluded.{f}" for f in OVERVIEW_FIELDS)
+    values = [run_id] + [fields.get(f, "") for f in OVERVIEW_FIELDS] + [now_str()]
+    with get_conn() as conn:
+        conn.execute(
+            f"INSERT INTO run_overview (run_id, {cols}, updated_at) "
+            f"VALUES (?, {placeholders}, ?) "
+            f"ON CONFLICT(run_id) DO UPDATE SET {updates}, updated_at = excluded.updated_at",
+            values,
+        )
+
+
+# ---- tasks ---------------------------------------------------------------
+def seed_tasks(run_id, tasks):
+    """Seed the run's task checklist from (phase, title) pairs, once."""
+    with get_conn() as conn:
+        existing = conn.execute(
+            "SELECT COUNT(*) AS n FROM run_task WHERE run_id = ?", (run_id,)
+        ).fetchone()["n"]
+        if existing:
+            return
+        conn.executemany(
+            "INSERT INTO run_task (run_id, phase, title, sort) VALUES (?, ?, ?, ?)",
+            [(run_id, phase, title, i) for i, (phase, title) in enumerate(tasks)],
+        )
+
+
+def list_tasks(run_id):
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM run_task WHERE run_id = ? ORDER BY sort, id", (run_id,)
+        ).fetchall()
+
+
+def set_task(task_id, status, assignee):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE run_task SET status = ?, assignee = ? WHERE id = ?",
+            (status, assignee, task_id),
+        )
+
+
+def add_task(run_id, phase, title):
+    with get_conn() as conn:
+        nxt = conn.execute(
+            "SELECT COALESCE(MAX(sort), 0) + 1 AS s FROM run_task WHERE run_id = ?", (run_id,)
+        ).fetchone()["s"]
+        conn.execute(
+            "INSERT INTO run_task (run_id, phase, title, sort) VALUES (?, ?, ?, ?)",
+            (run_id, phase, title, nxt),
+        )

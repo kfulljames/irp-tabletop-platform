@@ -276,8 +276,11 @@ non-technical, asked for the simplest thing to actually run). Rationale: Streaml
 browser and behaves like a normal web app (forms/buttons, no terminal after launch); strong PDF
 parsing (`pypdf`) and the official `anthropic` SDK; can generate Word/PDF later (`python-docx`,
 `reportlab`). SQLite = single local file, zero setup. **AI:** Anthropic API, default model
-**`claude-opus-4-8`**, structured gap analysis via `client.messages.parse()` (B15/Q26). the CTO
-supplies his own `ANTHROPIC_API_KEY`. Lives in `app/`; run with one command (`run.sh`/`run.bat`).
+structured gap analysis via `client.messages.parse()` (B15/Q26). **Model default = cheapest
+(`claude-haiku-4-5`, ~$1/$5 per M tokens)** with a sidebar picker (Haiku/Sonnet/Opus) so the CTO can
+re-run and compare quality vs cost — gap analysis is structured extraction, so the cheap model is
+the sensible default. the CTO supplies his own `ANTHROPIC_API_KEY`. Lives in `app/`; run with one
+command (`run.sh`/`run.bat`).
 
 ### B1 — Tenant hierarchy
 **Answer:** **Facilitator workspace owns client orgs.** the MSP = a facilitator workspace that

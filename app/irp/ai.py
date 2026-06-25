@@ -13,7 +13,9 @@ from pydantic import BaseModel, Field
 
 from .baseline import BASELINE_CHAPTERS, baseline_for_prompt
 
-MODEL = "claude-opus-4-8"
+# Default to the cheapest current model for this structured-extraction task.
+# Override per-call (the UI exposes a model picker). $1/$5 per M tokens vs Opus $5/$25.
+MODEL = "claude-haiku-4-5"
 
 Severity = Literal["none", "low", "medium", "high"]
 
@@ -56,9 +58,11 @@ def _client(api_key: Optional[str] = None) -> anthropic.Anthropic:
     return anthropic.Anthropic(api_key=key)
 
 
-def analyze_plan(plan_text: str, api_key: Optional[str] = None) -> PlanAnalysis:
+def analyze_plan(plan_text: str, api_key: Optional[str] = None,
+                 model: Optional[str] = None) -> PlanAnalysis:
     """Map the plan onto the baseline and return per-chapter assessments + gaps."""
     client = _client(api_key)
+    model = model or MODEL
     # Guard against extremely long plans blowing the request; the IRP/BCP samples fit easily.
     plan_text = plan_text[:120_000]
 
@@ -74,7 +78,7 @@ def analyze_plan(plan_text: str, api_key: Optional[str] = None) -> PlanAnalysis:
     )
 
     response = client.messages.parse(
-        model=MODEL,
+        model=model,
         max_tokens=16000,
         system=SYSTEM,
         messages=[{"role": "user", "content": prompt}],

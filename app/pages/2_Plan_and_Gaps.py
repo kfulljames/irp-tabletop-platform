@@ -3,7 +3,7 @@ import streamlit as st
 from irp import db, ai
 from irp.pdfutil import extract_text
 from irp.baseline import BASELINE_BY_KEY
-from irp.ui import sidebar_api_key, client_picker
+from irp.ui import sidebar_api_key, client_picker, selected_model
 
 st.set_page_config(page_title="Plan & Gaps · IRP Tabletop", page_icon="🛡️", layout="wide")
 db.init_db()
@@ -49,7 +49,8 @@ with st.expander("Preview extracted plan text"):
 
 # --- AI gap analysis ------------------------------------------------------
 st.subheader("2. AI gap analysis")
-st.caption(f"Runs on Anthropic {ai.MODEL}. No training on your data.")
+st.caption(f"Runs on Anthropic ({selected_model()} — change it in the sidebar). "
+           "No training on your data.")
 
 if st.button("Run AI gap analysis", type="primary"):
     if not api_key:
@@ -57,7 +58,9 @@ if st.button("Run AI gap analysis", type="primary"):
     else:
         try:
             with st.spinner("Analyzing the plan against the baseline… (~30s)"):
-                analysis = ai.analyze_plan(plan["full_text"], api_key=api_key)
+                analysis = ai.analyze_plan(
+                    plan["full_text"], api_key=api_key, model=selected_model()
+                )
                 sections, gaps = ai.analysis_to_db_rows(analysis)
                 db.save_sections(plan["id"], sections)
                 db.replace_ai_gaps(client_id, plan["id"], gaps)

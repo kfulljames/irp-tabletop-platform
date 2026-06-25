@@ -6,8 +6,21 @@ import streamlit as st
 from . import db
 
 
+def hide_running_indicator():
+    """Hide Streamlit's built-in top-right 'running' animation.
+
+    It's a generic Streamlit graphic some viewers find off-putting; our own inline
+    st.spinner still shows during long operations like the gap analysis.
+    """
+    st.markdown(
+        "<style>[data-testid='stStatusWidget']{visibility:hidden;}</style>",
+        unsafe_allow_html=True,
+    )
+
+
 def sidebar_api_key():
     """Render the API-key input in the sidebar; persist to env for the SDK."""
+    hide_running_indicator()
     with st.sidebar:
         st.subheader("Settings")
         existing = st.session_state.get("api_key", os.environ.get("ANTHROPIC_API_KEY", ""))

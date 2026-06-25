@@ -252,10 +252,23 @@ roadmap (`03-PRODUCT-REQUIREMENTS.md`) and the report spec (`02-EVIDENCE-REPORT-
 _Targeted round to de-risk the build before drafting requirements. Numbered B1+._
 
 ### B0 — Build stack
-**Answer:** **Lovable + Supabase.** Lovable for the app build (has magic-link auth built in,
-Q17); Supabase as Postgres DB + auth + storage — natural fit for multi-tenant (Q16),
-multi-email-per-user (Q39), and structured plan/evidence storage. Requirements doc will be
-written concretely against this stack.
+**Answer (revised 2026-06-25):** **v1 = simplest local prototype on the CTO's machine; rewrite into
+Lovable later.** _(Was: build directly in Lovable + Supabase.)_ Run v1 locally to prove the core
+value flow fast and keep client plans/evidence on-machine (also sidesteps parked Q24 residency for
+now). **Lovable + Supabase remains the productization target** — the full data model in
+`03-PRODUCT-REQUIREMENTS.md §4` is the *destination*, not the prototype. the CTO accepts that the
+Lovable move is a **rewrite**, not a lift-and-shift.
+
+**Prototype simplifications (vs the target model):**
+- **Single facilitator + single workspace (the MSP)** — no multi-tenant RLS, no facilitator→client
+  hierarchy yet (one local user = the facilitator).
+- **No magic-link/multi-email auth** — local single-user; auth is a Lovable-era concern.
+- **Local storage** (e.g., SQLite + local files) instead of Supabase Postgres/Storage.
+- **No live remote participant view (B11) / presenter split** — single-machine facilitator-driven
+  run; act-as still captures attribution.
+- Everything else (typed capture, clock, gap analysis, punch-list, EOS vote, evidence export) is
+  **in scope** — that's the value being proven.
+- Concrete prototype stack: TBD (see B0a).
 
 ### B1 — Tenant hierarchy
 **Answer:** **Facilitator workspace owns client orgs.** the MSP = a facilitator workspace that

@@ -40,13 +40,24 @@ mapping (Q10 — general access only).
 
 ## 2. Architecture & stack (B0)
 
+> **v1 is a local prototype (revised B0).** v1 runs locally on the CTO's machine as the **simplest
+> prototype** that proves the core value flow; the Lovable + Supabase build below is the
+> **productization target**, reached via a deliberate rewrite — not built now. The data model
+> (§4) and roles (§3) describe the *target*; the prototype collapses them (single local
+> facilitator, no auth, local SQLite/files, no remote participant view — see B0 in the decisions
+> log). Everything else (typed capture, clock, gap analysis, punch-list, EOS vote, evidence
+> export) is in the prototype.
+
+**Productization target (Lovable + Supabase):**
 - **Lovable** — app build + hosting; built-in **magic-link auth** (Q17).
 - **Supabase** — Postgres (data model §4), Auth (magic link + multi-email per user, Q39),
   Storage (uploaded plan PDFs, exported reports), Row-Level Security for tenant isolation (Q16/B1).
-- **Anthropic API (Claude, latest)** — gap analysis, closing-notes, punch-list suggestions;
-  **suggest-only, human-approved** (B15); no training on customer data.
 - **Out-of-band auth fallback** (Q17/Q39): every user has ≥1 alternate email (personal) so a
   downed work inbox doesn't block magic-link sign-in. _(v1 = multi-email; SMS/WhatsApp = v2.)_
+
+**Both prototype and target:**
+- **Anthropic API (Claude, latest)** — gap analysis, closing-notes, punch-list suggestions;
+  **suggest-only, human-approved** (B15); no training on customer data.
 
 ---
 

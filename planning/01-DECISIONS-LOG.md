@@ -268,7 +268,16 @@ Lovable move is a **rewrite**, not a lift-and-shift.
   run; act-as still captures attribution.
 - Everything else (typed capture, clock, gap analysis, punch-list, EOS vote, evidence export) is
   **in scope** — that's the value being proven.
-- Concrete prototype stack: TBD (see B0a).
+- Concrete prototype stack: **Python + Streamlit + SQLite** (B0a).
+
+### B0a — Concrete prototype stack
+**Answer:** **Python + Streamlit + SQLite**, chosen by Claude on the CTO's behalf (the CTO is
+non-technical, asked for the simplest thing to actually run). Rationale: Streamlit opens in the
+browser and behaves like a normal web app (forms/buttons, no terminal after launch); strong PDF
+parsing (`pypdf`) and the official `anthropic` SDK; can generate Word/PDF later (`python-docx`,
+`reportlab`). SQLite = single local file, zero setup. **AI:** Anthropic API, default model
+**`claude-opus-4-8`**, structured gap analysis via `client.messages.parse()` (B15/Q26). the CTO
+supplies his own `ANTHROPIC_API_KEY`. Lives in `app/`; run with one command (`run.sh`/`run.bat`).
 
 ### B1 — Tenant hierarchy
 **Answer:** **Facilitator workspace owns client orgs.** the MSP = a facilitator workspace that

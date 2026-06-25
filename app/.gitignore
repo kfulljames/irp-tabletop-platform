@@ -1,0 +1,6 @@
+# Local app artifacts — never commit these
+.env
+data/
+__pycache__/
+*.pyc
+.streamlit/secrets.toml

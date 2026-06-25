@@ -1,7 +1,7 @@
 # Decisions Log
 
 _Structured Q&A to nail down the build. Each question carried my best-guess + confidence;
-the recorded answer is what governs. Status: 30 of 40 answered (paused after Q30)._
+the recorded answer is what governs. Status: **40 of 40 answered — series complete.**_
 
 ## Strategic decisions (pre-series)
 
@@ -179,22 +179,69 @@ repeat sessions occur. (Automated cadence/reminders = later.)
 **Answer:** **1–10 scale, all participants vote, individual votes recorded by name.** Named
 because the vote is **audit evidence**. Report shows distribution + average. (Not anonymous.)
 
+### Q31 — Third-party / vendor directory
+**Answer:** **Yes — structured directory, pre-loaded per client.** Insurer, breach counsel,
+forensics, PR, negotiator, DR, ISP, law enforcement, etc., as structured contacts (per the BCP
+table). Used live to train the "who to contact" muscle and captured in evidence. Per-org (Q16).
+
+### Q32 — Best-practice baseline source
+**Answer:** **Yes — seed from the existing task/playbook library** (the ~40 Exigence-style
+tasks), refined over time. This is the reference set the AI gap analysis (Q8) compares the
+ingested client plan against.
+
+### Q33 — Task library / playbook model
+**Answer:** **Yes — reusable task templates with guidance text, grouped by phase/status**,
+mirroring the sample report structure. Single source feeding both the baseline (Q32) and the
+live run.
+
+### Q34 — Role model
+**Answer:** **Mirror the sample's incident roles** (IRC, Security Analyst, etc.). Role
+assignments and changes are **logged as evidence** (ties to act-as attribution, Q6).
+
+### Q35 — Remote vs in-person
+**Answer:** **Both in v1.** Presenter/projector view for in-person sessions **and** a remote
+participant view for distributed teams. (Pairs with Q38 light participant view.)
+
+### Q36 — Branding / white-label
+**Answer:** **Full white-label** (bigger than the co-branded guess). Configurable branding so
+any facilitator/partner can run it under their own brand — directly supports the
+**productization / licensable-to-other-facilitators trajectory (S1 resolution).** Per-client
+branding on reports falls out of this. → Build implication: branding is a first-class
+per-tenant config (logo, colors, report cover), not hardcoded the MSP/the PR partner.
+
+### Q37 — the PR partner inject ownership
+**Answer:** **the MSP authors everything.** the PR partner supplies comms/PR content **offline**; the CTO/
+the MSP enters and maintains it via the in-app authoring (Q25). No separate scoped the PR partner
+author role in v1. (Simplifies permissions; revisit if the PR partner volume grows.)
+
+### Q38 — Participant device experience
+**Answer:** **Light participant view.** On their own device participants see the current inject,
+prompts for who they're acting as, and the EOS vote. **Facilitator still drives the flow** (Q6/
+Q11). Not a full per-participant decision app — keeps the room facilitator-led while enabling
+remote participation (Q35).
+
+### Q39 — Notifications
+**Answer:** **Email-only for v1; multi-email per user; richer channels later.** Lovable's
+built-in magic link handles auth (Q17). **Every user has more than one email** — work + personal
+— so that if work email is down (a realistic incident condition) they sign in via personal
+email. → Build implication: account model supports **multiple email addresses per user**, any of
+which can receive a magic link. **Deferred to real-incident mode (Q21), not v1:** SMS + WhatsApp
+connectivity so an incident decision/alert can be pushed to people via SMS/email/WhatsApp to tell
+them an incident is live and let them join. For v1, **email only**.
+
+### Q40 — MVP cut
+**Answer:** **Single end-to-end engagement.** Smallest first build delivers one full real
+engagement on the multi-tenant core:
+ingest plan → setup wizard → run a seeded scenario with act-as + live clock + observers →
+capture decisions/notes/EOS vote → AI gap review → export evidence (PDF/Word) + redline
+punch-list.
+**Deferred past MVP:** two-way ControlMap (Q28), full white-label theming (Q36), automated
+cadence/reminders (Q29), SMS/WhatsApp + real-incident-mode polish (Q21/Q39). The architecture
+stays real-incident-ready (Q21); tabletop is just the first shipped mode.
+
 ---
 
-## Remaining question queue (Q31–Q40) — _tentative, resume on "continue"_
-
-These are the areas still to lock. Order/wording may adapt to prior answers.
-
-31. **Third-party directory** — pre-load the client's vendor/contact list (insurer, breach
-    counsel, forensics, PR, law enforcement) as in the BCP table. (guess: yes, structured)
-32. **Best-practice baseline source** — seed from existing playbook/task library (the ~40
-    Exigence tasks)? (guess: yes)
-33. **Task library / playbook model** — reusable task templates with guidance text, grouped by
-    phase/status, as in the sample. (guess: yes)
-34. **Role model** — IRC, Security Analyst, etc.; role changes logged. (guess: mirror sample)
-35. **Remote vs in-person** — presenter view + projector; remote participant view. (guess: both)
-36. **Branding / white-label** — co-branded the MSP + the PR partner; per-client branding on report?
-37. **the PR partner inject ownership** — how the PR partner authors/maintains the comms injects in the system.
-38. **Participant device experience** — what (if anything) participants see on their phones.
+_All 40 questions answered. Next: translate these decisions into the product requirements /
+roadmap (`03-PRODUCT-REQUIREMENTS.md`) and the report spec (`02-EVIDENCE-REPORT-SPEC.md`)._
 39. **Notifications** — does the tool simulate/send anything, or purely log? (Q13 leans: log only)
 40. **MVP cut** — the smallest first build that delivers a real engagement + report.

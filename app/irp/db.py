@@ -10,9 +10,19 @@ import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
 
+try:
+    from zoneinfo import ZoneInfo
+except Exception:  # pragma: no cover
+    ZoneInfo = None
 
-def now_str():
-    """Local wall-clock timestamp, so the evidence timeline reads in the facilitator's time."""
+
+def now_str(tzname=None):
+    """Timestamp in the chosen timezone (IANA name) so every event reads in one consistent zone."""
+    if tzname and ZoneInfo is not None:
+        try:
+            return datetime.now(ZoneInfo(tzname)).strftime("%Y-%m-%d %H:%M:%S")
+        except Exception:
+            pass
     return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
@@ -78,6 +88,7 @@ CREATE TABLE IF NOT EXISTS run (
     scenario_title TEXT,
     status         TEXT NOT NULL DEFAULT 'running',  -- running | complete
     current_inject INTEGER NOT NULL DEFAULT 0,
+    timezone       TEXT,                              -- IANA tz; all run timestamps use this
     started_at     TEXT,
     resolved_at    TEXT,
     created_at     TEXT NOT NULL DEFAULT (datetime('now'))
@@ -110,6 +121,13 @@ def _has_table(conn, name):
     ).fetchone() is not None
 
 
+def _has_column(conn, table, column):
+    if not _has_table(conn, table):
+        return False
+    cols = [r["name"] for r in conn.execute(f"PRAGMA table_info({table})").fetchall()]
+    return column in cols
+
+
 def init_db():
     os.makedirs(DATA_DIR, exist_ok=True)
     with get_conn() as conn:
@@ -127,6 +145,9 @@ def init_db():
                 "SELECT client_org_id, kind, source_filename, full_text, uploaded_at FROM plan"
             )
             conn.execute("DROP TABLE plan")
+        # Add the run.timezone column to pre-existing databases.
+        if _has_table(conn, "run") and not _has_column(conn, "run", "timezone"):
+            conn.execute("ALTER TABLE run ADD COLUMN timezone TEXT")
 
 
 @contextmanager
@@ -304,12 +325,12 @@ def delete_person(person_id):
 
 
 # ---- runs ----------------------------------------------------------------
-def create_run(client_org_id, scenario_key, scenario_title):
+def create_run(client_org_id, scenario_key, scenario_title, timezone=None):
     with get_conn() as conn:
         cur = conn.execute(
-            "INSERT INTO run (client_org_id, scenario_key, scenario_title, status, started_at) "
-            "VALUES (?, ?, ?, 'running', ?)",
-            (client_org_id, scenario_key, scenario_title, now_str()),
+            "INSERT INTO run (client_org_id, scenario_key, scenario_title, status, timezone, started_at) "
+            "VALUES (?, ?, ?, 'running', ?, ?)",
+            (client_org_id, scenario_key, scenario_title, timezone, now_str(timezone)),
         )
         return cur.lastrowid
 
@@ -340,11 +361,11 @@ def set_current_inject(run_id, idx):
         conn.execute("UPDATE run SET current_inject = ? WHERE id = ?", (idx, run_id))
 
 
-def resolve_run(run_id):
+def resolve_run(run_id, timezone=None):
     with get_conn() as conn:
         conn.execute(
             "UPDATE run SET status = 'complete', resolved_at = ? WHERE id = ?",
-            (now_str(), run_id),
+            (now_str(timezone), run_id),
         )
 
 
@@ -367,12 +388,12 @@ def list_participants(run_id):
 
 
 # ---- timeline ------------------------------------------------------------
-def add_event(run_id, etype, acting_person_id, description, payload=None):
+def add_event(run_id, etype, acting_person_id, description, payload=None, timezone=None):
     with get_conn() as conn:
         conn.execute(
             "INSERT INTO timeline_event (run_id, occurred_at, type, acting_person_id, description, payload) "
             "VALUES (?, ?, ?, ?, ?, ?)",
-            (run_id, now_str(), etype, acting_person_id, description, payload),
+            (run_id, now_str(timezone), etype, acting_person_id, description, payload),
         )
 
 

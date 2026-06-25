@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 import streamlit as st
 
@@ -19,17 +18,17 @@ if client_id is None:
 tenant_banner(db.get_client(client_id))
 st.title("Run Exercise")
 
-
-def fmt_elapsed(started_at):
-    try:
-        start = datetime.strptime(started_at, "%Y-%m-%d %H:%M:%S")
-    except (TypeError, ValueError):
-        return "—"
-    secs = int((datetime.now() - start).total_seconds())
-    secs = max(secs, 0)
-    h, rem = divmod(secs, 3600)
-    m, s = divmod(rem, 60)
-    return f"{h:02d}:{m:02d}:{s:02d}"
+# Timezone choices for the exercise — all timestamps are stamped/shown in the chosen zone.
+TIMEZONES = {
+    "Eastern (Toronto / New York)": "America/Toronto",
+    "Central (Winnipeg / Chicago)": "America/Winnipeg",
+    "Mountain (Calgary / Denver)": "America/Edmonton",
+    "Pacific (Vancouver / Los Angeles)": "America/Vancouver",
+    "Atlantic (Halifax)": "America/Halifax",
+    "Newfoundland (St. John's)": "America/St_Johns",
+    "UTC": "UTC",
+}
+TZ_LABEL = {v: k for k, v in TIMEZONES.items()}
 
 
 # ==========================================================================
@@ -82,14 +81,19 @@ if not active:
                                   default=list(opts.keys()))
     chosen_obs = st.multiselect("Observers (present, non-acting)", list(opts.keys()))
 
+    tz_label = st.selectbox("Timezone for this exercise (all timestamps use it)",
+                            list(TIMEZONES.keys()))
+    tz = TIMEZONES[tz_label]
+
     if st.button("▶️ Start exercise", type="primary"):
-        run_id = db.create_run(client_id, skey, scenario["title"])
+        run_id = db.create_run(client_id, skey, scenario["title"], timezone=tz)
         for lab in chosen_parts:
             db.add_participant(run_id, opts[lab], "participant")
         for lab in chosen_obs:
             if lab not in chosen_parts:
                 db.add_participant(run_id, opts[lab], "observer")
-        db.add_event(run_id, "Incident start", None, f"Exercise started: {scenario['title']}")
+        db.add_event(run_id, "Incident start", None,
+                     f"Exercise started: {scenario['title']}", timezone=tz)
         st.rerun()
 
     runs = db.list_runs(client_id)
@@ -112,14 +116,12 @@ participants = db.list_participants(run["id"])
 actors = [p for p in participants if p["role"] == "participant"]
 observers = [p for p in participants if p["role"] == "observer"]
 
-# --- header / clock ---
-hcol = st.columns([3, 2, 2])
+# --- header ---
+run_tz = run["timezone"] if "timezone" in run.keys() else None
+tz_friendly = TZ_LABEL.get(run_tz, run_tz or "local")
+hcol = st.columns([4, 3])
 hcol[0].markdown(f"**Running:** {run['scenario_title']}")
-hcol[1].metric("Elapsed", fmt_elapsed(run["started_at"]))
-hcol[2].caption(f"Started {run['started_at']}")
-hcol[2].caption("⏱️ Clock updates on each action — click **Refresh** to tick it.")
-if hcol[2].button("Refresh"):
-    st.rerun()
+hcol[1].caption(f"Started {run['started_at']} · 🌐 All times: {tz_friendly}")
 
 names = " · ".join(p["full_name"] for p in actors) or "—"
 obs_names = " · ".join(p["full_name"] for p in observers)
@@ -144,7 +146,7 @@ with left:
             new_idx = idx + 1
             db.set_current_inject(run["id"], new_idx)
             db.add_event(run["id"], "Inject", None,
-                         f"Inject {new_idx + 1}: {injects[new_idx]['title']}")
+                         f"Inject {new_idx + 1}: {injects[new_idx]['title']}", timezone=run_tz)
             st.rerun()
 
         with st.container(border=True):
@@ -193,7 +195,7 @@ with right:
 
         if st.form_submit_button("➕ Log to timeline") and desc.strip():
             db.add_event(run["id"], ctype, actor_opts[act_label], desc.strip(),
-                         json.dumps(payload) if payload else None)
+                         json.dumps(payload) if payload else None, timezone=run_tz)
             if ctype == "Note / plan gap" and gap and gap[1]:
                 db.add_room_gap(client_id, title=desc.strip()[:80], description=desc.strip(),
                                 severity=gap[0])
@@ -223,7 +225,8 @@ else:
 # --- end ---
 st.divider()
 if st.button("⏹️ Resolve & end exercise"):
-    db.add_event(run["id"], "Resolution", None, "Incident resolved; exercise ended.")
-    db.resolve_run(run["id"])
+    db.add_event(run["id"], "Resolution", None, "Incident resolved; exercise ended.",
+                 timezone=run_tz)
+    db.resolve_run(run["id"], timezone=run_tz)
     st.success("Exercise ended. Head to **Evidence Report** to generate the report.")
     st.rerun()

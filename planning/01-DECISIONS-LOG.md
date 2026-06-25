@@ -324,5 +324,32 @@ the May sample's real ~40-min timeline). Confirms/clarifies Q18.
 magic link to a live view (current inject + their act-as prompts + EOS vote); the
 facilitator/projector view is the shared presenter screen. Delivers Q35 ("both") + Q38 (light
 view) in v1, not as a fast-follow.
+
+### B12 — Report finalization gate
+**Answer:** **Facilitator approves before export.** At close, the system auto-fills factual
+sections (timeline, team, tasks, vote) and **AI drafts** the narrative sections (closing notes,
+gap findings, punch-list); facilitator reviews/edits/approves before export. **Nothing exports
+without facilitator sign-off.** (Pairs with B15 + Q23 "documents finalized at close.")
+
+### B13 — EOS vote collection
+**Answer:** **On-device, named, act-as fallback.** Each participant submits their 1–10 vote on
+their own device (in-room or remote, B11); recorded by name (Q30); facilitator can enter a vote
+on someone's behalf via act-as (Q6). Report shows distribution + average.
+
+### B14 — Seed scenario content
+**Answer:** **Claude drafts, the CTO + the PR partner refine.** I draft the 3 launch scenarios (BEC,
+Ransomware, Data breach, Q9) as structured inject decks from CISA CTEP + the the MSP May sample;
+the CTO + the PR partner refine (esp. comms injects) in-app via the authoring UI (Q25). Fast seed path.
+
+### B15 — AI usage guardrails
+**Answer:** **AI suggests, human approves; Anthropic API.** AI only drafts/suggests (closing
+notes, gap analysis, punch-list, B5); a human always approves before final/export (B12). Runs on
+the **Anthropic API — no training on customer data** — the concrete privacy answer to the
+"don't use public ChatGPT" concern (04-REFERENCE-NOTES) and a partial hook for deferred Q24.
+
+---
+
+_Build round complete (B0–B15). Decisions are sufficient to draft `03-PRODUCT-REQUIREMENTS.md`
+(v1 spec + data model + roadmap) against the Lovable + Supabase stack._
 39. **Notifications** — does the tool simulate/send anything, or purely log? (Q13 leans: log only)
 40. **MVP cut** — the smallest first build that delivers a real engagement + report.

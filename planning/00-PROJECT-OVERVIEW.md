@@ -1,6 +1,21 @@
 # IRP Tabletop Platform — Project Overview
 
-_Last updated: 2026-06-24 • Owner: the CTO  (CTO, the MSP)_
+_Last updated: 2026-06-25 • Owner: the CTO  (CTO, the MSP)_
+
+## Status / progress
+
+- **Decisions:** all **40 of 40** scoping questions answered (`01-DECISIONS-LOG.md`).
+- **Versioning locked:** **v1 = tabletop exercises**, **v2 = real incident management** (same
+  core; v1 architecture stays real-incident-compatible without carrying v2 scope).
+- **MVP (Q40):** one full end-to-end engagement on the multi-tenant core — ingest plan → setup
+  wizard → run a seeded scenario (act-as + live clock + observers) → capture decisions/notes/EOS
+  vote → AI gap review → export evidence (PDF/Word) + redline punch-list.
+- **Deferred past MVP:** two-way ControlMap sync, full white-label theming, automated
+  cadence/reminders, SMS/WhatsApp + real-incident mode.
+- **Source review done:** sample report, the MSP IRP/BCP, CISA CTEP, competitor (Exigence/Field
+  Effect) + 6 Exigence/Spiceworks articles distilled into `04-REFERENCE-NOTES.md`.
+- **Next:** draft `03-PRODUCT-REQUIREMENTS.md` (v1 feature spec + roadmap) from the decisions;
+  open business item parked = data residency / SOC 2 posture (Q24).
 
 ## What we're building
 

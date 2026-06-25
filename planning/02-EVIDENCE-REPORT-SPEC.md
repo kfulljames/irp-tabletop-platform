@@ -15,12 +15,22 @@ exportable as a polished PDF (and likely editable Word). Reverse-engineered from
 - Incident name, start/resolution time, **incident type**
 - **Incident Closing Notes** — AI-generated narrative of the whole exercise (the sample's
   closing notes are a good template for tone/length)
+- **Structured summary fields** the AI narrative must cover (from Exigence's published schema —
+  see 04-REFERENCE-NOTES 2026-06-25): when it took place · **when first reported (internally vs
+  to customers)** · when resolved · what happened · systems affected · severity · customer impact
+  (who / how many) · business impact (data breach / SLA-KPI miss) · **who was notified internally
+  / externally** · **what was communicated to leadership vs customers** · resolution actions.
 
 ## Section 2 — Debrief (post-mortem)
 - **What went right**
 - **What went wrong**
 - **What can be improved**
 - _(maps to the IRP/BCP post-mortem question set — see 04-REFERENCE-NOTES)_
+- **Structured post-mortem breakdown** (Spiceworks 7-part template, optional per engagement):
+  Leadup · Fault · Impact · Detection · Response · Recovery · Timeline → + **root cause** +
+  **corrective actions linked to root cause** (feed Q27 action tracking).
+- Principles: **blameless** (process, not people); produce **within 48h** of close while memory
+  is fresh (our real-time-at-close generation, Q23, satisfies this by default).
 
 ## Section 3 — Overview
 - **Last Status / Latest update**

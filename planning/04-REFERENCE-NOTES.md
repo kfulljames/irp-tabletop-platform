@@ -62,6 +62,48 @@ re-derive it each session._
   out-of-band availability. Claims: "hours to minutes" prep, "real-time report generation."
 - Certified ISO 27001 + SOC 2 Type 2.
 
+### Source review 2026-06-25 — 5 Exigence blog posts + 1 Spiceworks post-mortem guide
+_(Mostly **confirms** prior decisions; new/sharpening items flagged ⚑.)_
+- **"END INCIDENT" close flow** (screenshot): modal "Great job! Normality has been restored.
+  Are there any closing notes you'd like to add?" → an editable AI-Buddy narrative auto-fills.
+  Exactly our close → AI-summary → editable-notes pattern (Q15/Q23/Q26). Sample narrative was a
+  timestamped recap ("first reported 12:00 AM EST … resolved 07:27 PM EST … rolled back a
+  password sync change…").
+- ⚑ **Concrete incident-summary field schema** (use to tighten evidence report Sec 1/Sec 3):
+  when it took place · **when first reported (internally vs to customers)** · when resolved ·
+  what happened · systems affected · severity · customer impact (who/how many) · business impact
+  (data breach / SLA-KPI miss) · **who was notified internally/externally** · **what was
+  communicated to leadership vs customers** · resolution actions.
+- ⚑ **Spiceworks post-mortem template** — 7 sections: **Leadup · Fault · Impact · Detection ·
+  Response · Recovery · Timeline**, then **root cause** + **corrective actions linked to root
+  cause**; **blameless** (process not people); hold **within 48h** of resolution; small group of
+  responders + key stakeholders. Enriches our Debrief (Sec 2) + action tracking (Q27).
+- **IM vs IR distinction** (Exigence's own framing): incident *management* = broad end-to-end
+  logistics/comms/planning/aligning/reporting across stakeholders; incident *response* = the
+  technical analysis/containment subset. **Validates our executive-judgment wedge** — we own the
+  management layer, tech is "assigned out" (Q10). Their 9-step IM process (log → categorize →
+  prioritize → assign → task → SLA/escalate → resolve → close → review) ≈ our run + close.
+  Their IM roles: incident manager, first/second line, **comms lead**, tech lead.
+- **IR-plan "key chapters"** (good gap-analysis baseline checklist, Q8/Q32): roles &
+  responsibilities · identification/assessment framework · containment · eradication/recovery ·
+  data collection for intel · post-mortem outline · notification requirements · comms guidelines
+  (internal, customers, **law enforcement, media, regulators, insurer**) · IR checklist.
+- ⚑ **Plan availability when systems are down**: "critical that the plan be available even if the
+  enterprise system that stores it is down." Extends Q17/Q39 beyond auth — the **IRP + contact
+  directory themselves** need offline/exportable access during a real incident. → v2/real-incident
+  requirement, not v1-critical.
+- ⚑ **AI data-privacy stance**: Exigence explicitly warns against public ChatGPT (prompts can
+  surface to other parties); insists genAI be "private, local, contained." Our answer: the
+  **Anthropic API does not train on customer data** — directly addresses this; make it a sales
+  point. Ties Q26 ↔ deferred Q24.
+- ⚑ **Searchable past-incident knowledge** ("query genAI for previous incidents — which actions
+  resolved fast, which to avoid"). Adjacent to our readiness trend; **candidate v2 feature**
+  (incident/exercise knowledge base for reuse).
+- Confirmed-also: multi-tenant for MSP/MSSP delivery (Q16); playbook guidance during the
+  exercise = our facilitator teleprompter (Q20); automated exercise scheduling + reminders +
+  searchable scheduled/running/completed states (we **deferred** this as Q29 — fine, but note the
+  incumbent has it); one-click report at close (Q23).
+
 ## Field Effect — tabletop as a human service
 - Six incident types: Ransomware, Business Email Compromise, Malware, Information theft,
   Internet-facing service compromise, Unauthorized fund transfers.

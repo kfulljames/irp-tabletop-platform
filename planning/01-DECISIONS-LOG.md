@@ -124,13 +124,13 @@ scaling mechanism** — lets a trained non-the CTO facilitator run a quality ses
 productization/light-facilitation trajectory (S1 tension resolution).
 
 ### Q21 — Real-incident mode
-**Answer:** **Yes — build for it now (first-class), not just leave the door open.** The same
-tool should be able to run a **real** incident, not only the tabletop. → Major architecture
-directive: the timeline/clock, contact directory, decision log, act-as attribution, and
-evidence output must all work for a live incident out of the box. Exercise vs. real-incident is
-a **mode** on shared infrastructure. Reframes "tabletop" features as a configuration of an
-incident-management core rather than a standalone exercise app. _(Revisit Q40 MVP cut with this
-in mind — real-incident-ready core, tabletop as the first shipped mode.)_
+**Answer:** **v1 = tabletop; v2 = real incident management.** _(Refined 2026-06-25 — was
+"first-class now"; resequenced into versions.)_ The same tool should eventually run a **real**
+incident, but that is **v2**, not v1. v1 ships tabletop only. → Architecture directive stands:
+build the v1 core (timeline/clock, contact directory, decision log, act-as attribution, evidence
+output) so it **doesn't preclude** a real-incident mode later — exercise vs. real-incident is a
+**mode** on shared infrastructure. But do **not** carry real-incident reliability/uptime/comms
+scope into v1. Tabletop is the v1 product; incident management is the v2 expansion.
 
 ### Q22 — Export formats
 **Answer:** **PDF + editable Word + structured export.** Polished PDF = primary SOC 2
@@ -164,11 +164,11 @@ review (Q15), and closing-notes generation. Keep integration provider-swappable.
 core signal.
 
 ### Q28 — GRC integration
-**Answer:** **Two-way ControlMap integration in v1** (more ambitious than the import-only
-guess). Pull plans from ControlMap; push evidence + corrective actions back. → **Risk/feasibility
-flag:** depends on ControlMap exposing a usable API (auth, plan export, evidence/action push).
-Confirm the API surface before committing this as a hard v1 requirement; structured export
-(Q22) is the fallback if the API can't support it.
+**Answer:** **v1 = import + structured export; two-way ControlMap sync = post-MVP.** _(Refined
+2026-06-25 — was "two-way in v1.")_ v1: ingest client plans (PDF upload, Q7) and produce
+structured export (Q22) for manual GRC upload. **Two-way ControlMap sync (pull plans / push
+evidence + actions back) is built later, not MVP.** When built, it depends on ControlMap
+exposing a usable API — confirm the API surface at that point.
 
 ### Q29 — Cadence / scheduling
 **Answer:** **Manual scheduling in v1; trend computed from repeats.** No automated re-test
@@ -235,9 +235,10 @@ engagement on the multi-tenant core:
 ingest plan → setup wizard → run a seeded scenario with act-as + live clock + observers →
 capture decisions/notes/EOS vote → AI gap review → export evidence (PDF/Word) + redline
 punch-list.
-**Deferred past MVP:** two-way ControlMap (Q28), full white-label theming (Q36), automated
-cadence/reminders (Q29), SMS/WhatsApp + real-incident-mode polish (Q21/Q39). The architecture
-stays real-incident-ready (Q21); tabletop is just the first shipped mode.
+**Deferred past MVP:** two-way ControlMap sync (Q28), full white-label theming (Q36), automated
+cadence/reminders (Q29), SMS/WhatsApp + real-incident management (Q21/Q39).
+**Versioning:** **v1 = tabletop**, **v2 = real incident management**. The v1 architecture stays
+real-incident-compatible (Q21) without carrying v2 scope.
 
 ---
 

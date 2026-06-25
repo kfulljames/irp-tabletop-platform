@@ -1,0 +1,10 @@
+# Claude Code / local tooling
+settings.local.json
+.claude/
+
+# Scratch / generated extractions
+_tabletop_extracted.txt
+
+# OS cruft
+Thumbs.db
+.DS_Store

@@ -51,7 +51,7 @@ re-derive it each session._
   - Parent: **the holding company** (the parent principal, President/COO)
 - Recovery procedures per type (Security breach/DoS/Ransomware; Infrastructure; Personnel;
   Physical; Pandemic) each with steps + people responsible + **RTO/RPO objectives**.
-- Region: **Greater Toronto Area** (systems), Vancouver office. Canadian context.
+- Region: **Vancouver-based** (the MSP is a Vancouver company); Canadian context.
 
 ## Exigence (competitor we're replacing) — marketing docs
 - Practitioner platform; multi-tenant for MSPs/MSSPs/IR firms + IT/security teams.

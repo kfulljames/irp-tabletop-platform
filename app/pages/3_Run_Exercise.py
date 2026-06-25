@@ -20,10 +20,10 @@ st.title("Run Exercise")
 
 # Timezone choices for the exercise — all timestamps are stamped/shown in the chosen zone.
 TIMEZONES = {
-    "Eastern (Toronto / New York)": "America/Toronto",
-    "Central (Winnipeg / Chicago)": "America/Winnipeg",
-    "Mountain (Calgary / Denver)": "America/Edmonton",
     "Pacific (Vancouver / Los Angeles)": "America/Vancouver",
+    "Mountain (Calgary / Denver)": "America/Edmonton",
+    "Central (Winnipeg / Chicago)": "America/Winnipeg",
+    "Eastern (Toronto / New York)": "America/Toronto",
     "Atlantic (Halifax)": "America/Halifax",
     "Newfoundland (St. John's)": "America/St_Johns",
     "UTC": "UTC",

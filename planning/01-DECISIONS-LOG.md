@@ -1,7 +1,7 @@
 # Decisions Log
 
 _Structured Q&A to nail down the build. Each question carried my best-guess + confidence;
-the recorded answer is what governs. Status: 14 of 40 answered (paused after Q14)._
+the recorded answer is what governs. Status: 30 of 40 answered (paused after Q30)._
 
 ## Strategic decisions (pre-series)
 
@@ -83,38 +83,108 @@ plan-gaps/recommended-changes section and the EOS confidence vote, AND include a
 → Build implication: hold the ingested plan as **editable structured content**, not a static
 PDF, so tracked changes can be rendered.
 
+### Q15 — How the redline/gap changes get authored
+**Answer:** **Live notes + AI review, output as an actionable update list.** During the
+session the facilitator captures notes when something needs to change (e.g., "insurance
+provider changed — update contact," "reorder this step"). Output can be a redlined plan
+**or** just a clean list of "things to update later" — the point is to hand the facilitator
+(or someone else) a concrete punch-list so the plan gets corrected. **Core purpose: see what
+works, fix what doesn't.** AI review is explicitly wanted on top: flag gaps/staleness the
+room didn't catch ("you have no PR firm listed," "corporate insurance shows a former
+provider"). → Build implication: capture mechanism = lightweight in-session note/flag tied to
+a plan element; report renders both human notes and AI-found gaps as an approvable change list.
+
+### Q16 — Multi-tenancy
+**Answer:** **Yes — multi-org from the start.** Each client is an isolated org (its own
+people, plans, contacts, run history). Hard tenant isolation in the data model from v1.
+
+### Q17 — Auth / access
+**Answer:** **Facilitator accounts + magic-link participants.** Magic links for low-friction
+participant join. **Critical requirement:** an **out-of-band login fallback** for staff in
+case **email is down** — which is a realistic incident condition (can't depend on email to
+authenticate during an exercise about email/systems being compromised). → Build implication:
+secondary auth path independent of email (e.g., one-time code via facilitator, SMS, or
+pre-shared access). _Hosting note:_ likely **Lovable** (lovable.dev) unless a stronger option
+emerges — revisit under Q-stack; must support magic links + the email-down fallback.
+
+### Q18 — Session clock
+**Answer:** **Yes — live running clock + manual time entry.** Compressed-clock session with
+start/resolution/total/response times per the `5 2025 Tabletop May.docx` sample; facilitator
+can also set/adjust times manually. Drives the timestamped evidence timeline.
+
+### Q19 — Observers
+**Answer:** **Yes — keep the Observer role.** Non-acting attendees (e.g., "Executive
+leadership, Group" in the sample) appear in attendance/evidence but are never logged as making
+decisions. Distinct from act-as participants.
+
+### Q20 — Facilitator guidance
+**Answer:** **Yes — per-inject teleprompter.** Each inject carries facilitator-only guidance:
+what to look for, "what good looks like," suggested probing questions. **This is the
+scaling mechanism** — lets a trained non-the CTO facilitator run a quality session, supporting the
+productization/light-facilitation trajectory (S1 tension resolution).
+
+### Q21 — Real-incident mode
+**Answer:** **Yes — build for it now (first-class), not just leave the door open.** The same
+tool should be able to run a **real** incident, not only the tabletop. → Major architecture
+directive: the timeline/clock, contact directory, decision log, act-as attribution, and
+evidence output must all work for a live incident out of the box. Exercise vs. real-incident is
+a **mode** on shared infrastructure. Reframes "tabletop" features as a configuration of an
+incident-management core rather than a standalone exercise app. _(Revisit Q40 MVP cut with this
+in mind — real-incident-ready core, tabletop as the first shipped mode.)_
+
+### Q22 — Export formats
+**Answer:** **PDF + editable Word + structured export.** Polished PDF = primary SOC 2
+deliverable; Word = hand-editable redline/punch-list (Q15); structured (JSON/CSV) = GRC upload
++ machine-readable evidence/trend data (feeds Q28 GRC integration and the readiness trend).
+
+### Q23 — Report generation timing
+**Answer:** **Live-built log, finalized at close.** The GUI shows the timestamps + event log
+on a dedicated tab **in real time** as the session runs (you watch the timeline build). But the
+**output documents** (PDF/Word/structured evidence) are **only generated/completed once the
+incident/tabletop is marked complete.** → Build implication: live timeline view ≠ document
+render; the export step is gated on session completion.
+
+### Q24 — Data residency / security
+**Answer:** **Deferred.** Not a v1 decision driver. (Will matter before external sale / SOC 2
+of the platform itself; revisit alongside final hosting choice.)
+
+### Q25 — Scenario authoring
+**Answer:** **In-app authoring in v1.** the CTO (and the PR partner for comms injects, Q37) can
+create/edit scenarios and injects in the app from the start — not config/code-only. Seed
+content (BEC, Ransomware, Data breach) still ships, but the authoring UI is a v1 feature.
+
+### Q26 — AI provider & usage
+**Answer:** **Claude (latest Anthropic models).** Used for gap analysis (Q8), note/redline
+review (Q15), and closing-notes generation. Keep integration provider-swappable.
+
+### Q27 — Action-item tracking
+**Answer:** **Yes — tracked to closure.** Corrective actions get owner + due date + status and
+**persist across engagements** so the next session can verify closure. This is the spine of the
+**readiness-improvement wedge (S3)** — plan-change/action volume trending down over time = the
+core signal.
+
+### Q28 — GRC integration
+**Answer:** **Two-way ControlMap integration in v1** (more ambitious than the import-only
+guess). Pull plans from ControlMap; push evidence + corrective actions back. → **Risk/feasibility
+flag:** depends on ControlMap exposing a usable API (auth, plan export, evidence/action push).
+Confirm the API surface before committing this as a hard v1 requirement; structured export
+(Q22) is the fallback if the API can't support it.
+
+### Q29 — Cadence / scheduling
+**Answer:** **Manual scheduling in v1; trend computed from repeats.** No automated re-test
+reminders v1 — engagements booked manually. The readiness trend is still plotted whenever
+repeat sessions occur. (Automated cadence/reminders = later.)
+
+### Q30 — EOS vote mechanics
+**Answer:** **1–10 scale, all participants vote, individual votes recorded by name.** Named
+because the vote is **audit evidence**. Report shows distribution + average. (Not anonymous.)
+
 ---
 
-## Remaining question queue (Q15–Q40) — _tentative, resume on "continue"_
+## Remaining question queue (Q31–Q40) — _tentative, resume on "continue"_
 
 These are the areas still to lock. Order/wording may adapt to prior answers.
 
-15. **Gap/change output** — does the redline come from AI suggestions the facilitator
-    approves, or facilitator-authored edits captured live? (guess: AI-proposed, facilitator-approved)
-16. **Multi-tenancy** — each client is an isolated org (its people, plans, contacts, run
-    history). Confirm scope. (guess: yes, multi-org from the start)
-17. **Auth / access** — how facilitator vs. participants log in; magic-link low-friction for
-    participants? (guess: facilitator accounts + optional magic-link participants)
-18. **Session clock** — does the exercise run on a (compressed) clock with start/resolution
-    like the sample? (guess: yes, real-time clock + manual time entry)
-19. **Observers** — keep the Observer concept (e.g., "Executive leadership, Group")? (guess: yes)
-20. **Facilitator guidance** — does the app give you a teleprompter / "what good looks like"
-    prompts per inject (so others can facilitate)? (guess: yes — key to scaling beyond the CTO)
-21. **Real-incident mode** — could the same tool run a real incident later (out-of-band)?
-    (guess: not v1; architecture shouldn't preclude it)
-22. **Export formats** — PDF primary; also editable Word? (guess: PDF + Word)
-23. **Report generation timing** — real-time at session end vs. produced after? (guess: real-time)
-24. **Data residency / security** — Canadian data, SOC 2 posture, hosting. (guess: Canadian region)
-25. **Scenario authoring** — does the CTO author/edit scenarios in-app, or are they config/code?
-    (guess: in-app authoring eventually; seed content first)
-26. **AI provider & usage** — closing-notes generation, gap analysis, redline suggestions.
-    (default: Claude / latest Anthropic models)
-27. **Action-item tracking** — are post-exercise corrective actions tracked to closure
-    (feeding the readiness loop)? (guess: yes)
-28. **GRC integration** — ingest plans from / push evidence + actions back to ControlMap?
-    (guess: import v1, push later)
-29. **Cadence / scheduling** — annual/quarterly reminders, re-test trend. (guess: yes)
-30. **EOS vote mechanics** — scale (1–10?), who votes, anonymous? (guess: 1–10, all participants)
 31. **Third-party directory** — pre-load the client's vendor/contact list (insurer, breach
     counsel, forensics, PR, law enforcement) as in the BCP table. (guess: yes, structured)
 32. **Best-practice baseline source** — seed from existing playbook/task library (the ~40

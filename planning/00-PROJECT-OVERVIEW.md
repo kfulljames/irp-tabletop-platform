@@ -76,7 +76,7 @@ productization (light-facilitation / licensable to other facilitators) is the tr
 ## Document index (this folder)
 
 - `00-PROJECT-OVERVIEW.md` — this file
-- `01-DECISIONS-LOG.md` — Q1–Q14 answered + remaining question queue (Q15–Q40)
+- `01-DECISIONS-LOG.md` — Q1–Q30 answered + remaining question queue (Q31–Q40)
 - `02-EVIDENCE-REPORT-SPEC.md` — the report/redline deliverable spec
 - `03-PRODUCT-REQUIREMENTS.md` — functional requirements + phased roadmap
 - `04-REFERENCE-NOTES.md` — distilled notes from source documents

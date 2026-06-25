@@ -3,7 +3,8 @@ import json
 import streamlit as st
 
 from irp import db
-from irp.scenarios import SCENARIOS, INCIDENT_ROLES, PHASES, CATEGORY_TO_PHASE
+from irp.scenarios import (SCENARIOS, INCIDENT_ROLES, PHASES, CATEGORY_TO_PHASE,
+                           IMPACT_DIMENSIONS, IMPACT_RATINGS)
 from irp.ui import sidebar_api_key, sidebar_client_picker, tenant_banner
 
 st.set_page_config(page_title="Run Exercise · IRP Tabletop", page_icon="🛡️", layout="wide")
@@ -150,6 +151,7 @@ st.markdown("&nbsp;&nbsp;".join(chips), unsafe_allow_html=True)
 # --- Overview + Task checklist (collapsed to keep the view simple) ---
 with st.expander("📋 Overview — feeds the evidence report"):
     ov = db.get_overview(run["id"])
+    ovkv = db.get_kv(run["id"])
     with st.form(f"ov_{run['id']}"):
         latest_status = st.text_area("Latest status", value=ov.get("latest_status", ""),
                                      placeholder="e.g. Identifying scope and containing the compromise.")
@@ -161,12 +163,48 @@ with st.expander("📋 Overview — feeds the evidence report"):
         who_discovered = c1.text_input("Who discovered it", value=ov.get("who_discovered", ""))
         impacted = c2.text_input("Users / assets impacted", value=ov.get("impacted", ""))
         history = st.text_area("Other pertinent history", value=ov.get("history", ""))
+
+        st.markdown("**Impact to Business**")
+        impact_vals = {}
+        for key, label in IMPACT_DIMENSIONS:
+            ic = st.columns([1, 3])
+            cur_r = ovkv.get(f"impact_{key}_rating", "None")
+            rating = ic[0].selectbox(
+                label, IMPACT_RATINGS,
+                index=IMPACT_RATINGS.index(cur_r) if cur_r in IMPACT_RATINGS else 0,
+                key=f"imp_{run['id']}_{key}_r")
+            expl = ic[1].text_input(
+                f"{label} explanation", value=ovkv.get(f"impact_{key}_expl", ""),
+                key=f"imp_{run['id']}_{key}_e", label_visibility="collapsed",
+                placeholder=f"{label} impact — explanation")
+            impact_vals[f"impact_{key}_rating"] = rating
+            impact_vals[f"impact_{key}_expl"] = expl
+
+        summary_vals = {}
+        sfields = scenario.get("summary_fields", [])
+        if sfields:
+            st.markdown(f"**{scenario.get('summary_title', 'Summary')}**")
+            for fkey, flabel, kind in sfields:
+                cur = ovkv.get(f"summary_{fkey}", "")
+                if kind == "yesno":
+                    opts = ["", "Yes", "No"]
+                    val = st.selectbox(flabel, opts, index=opts.index(cur) if cur in opts else 0,
+                                       key=f"sum_{run['id']}_{fkey}")
+                elif kind.startswith("choice:"):
+                    opts = [""] + kind.split(":", 1)[1].split(",")
+                    val = st.selectbox(flabel, opts, index=opts.index(cur) if cur in opts else 0,
+                                       key=f"sum_{run['id']}_{fkey}")
+                else:
+                    val = st.text_input(flabel, value=cur, key=f"sum_{run['id']}_{fkey}")
+                summary_vals[f"summary_{fkey}"] = val
+
         if st.form_submit_button("Save overview"):
             db.save_overview(run["id"], {
                 "latest_status": latest_status, "detection_summary": detection_summary,
                 "how_discovered": how_discovered, "when_discovered": when_discovered,
                 "who_discovered": who_discovered, "impacted": impacted, "history": history,
             })
+            db.set_kv_many(run["id"], {**impact_vals, **summary_vals})
             st.success("Overview saved.")
 
 with st.expander("✅ Incident task checklist (optional)"):
@@ -313,6 +351,36 @@ else:
         if c[1].button("🗑️", key=f"dele_{e['id']}", help="Delete event"):
             db.delete_event(e["id"])
             st.rerun()
+
+# --- close-out: debrief + confidence vote ---
+st.divider()
+with st.expander("🏁 Close-out — debrief & confidence vote"):
+    ckv = db.get_kv(run["id"])
+    with st.form(f"debrief_{run['id']}"):
+        st.markdown("**Debrief**")
+        d_right = st.text_area("What went right", value=ckv.get("debrief_right", ""))
+        d_wrong = st.text_area("What went wrong", value=ckv.get("debrief_wrong", ""))
+        d_improve = st.text_area("What can be improved", value=ckv.get("debrief_improve", ""))
+        if st.form_submit_button("Save debrief"):
+            db.set_kv_many(run["id"], {"debrief_right": d_right, "debrief_wrong": d_wrong,
+                                       "debrief_improve": d_improve})
+            st.success("Debrief saved.")
+
+    st.markdown("**Team confidence vote** (EOS-style, 1–10)")
+    existing_votes = {v["person_id"]: v["score"] for v in db.list_votes(run["id"])}
+    if not actors:
+        st.caption("Add participants to collect votes.")
+    else:
+        with st.form(f"vote_{run['id']}"):
+            vote_inputs = {}
+            for p in actors:
+                vote_inputs[p["id"]] = st.slider(
+                    p["full_name"], 1, 10, value=existing_votes.get(p["id"], 7),
+                    key=f"vote_{run['id']}_{p['id']}")
+            if st.form_submit_button("Save votes"):
+                for pid, sc in vote_inputs.items():
+                    db.set_vote(run["id"], pid, sc)
+                st.success("Votes saved.")
 
 # --- end ---
 st.divider()

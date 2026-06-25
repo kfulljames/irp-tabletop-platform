@@ -125,6 +125,24 @@ CREATE TABLE IF NOT EXISTS run_task (
     sort     INTEGER NOT NULL DEFAULT 0
 );
 
+-- Flexible per-run structured fields (Impact-to-Business, per-type summary, debrief,
+-- AI closing notes, report status) — avoids schema churn for report-only fields.
+CREATE TABLE IF NOT EXISTS run_kv (
+    run_id INTEGER NOT NULL REFERENCES run(id) ON DELETE CASCADE,
+    key    TEXT NOT NULL,
+    value  TEXT,
+    PRIMARY KEY (run_id, key)
+);
+
+-- EOS-style confidence vote (Q30/B13): 1-10 per participant, named.
+CREATE TABLE IF NOT EXISTS run_vote (
+    id           INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id       INTEGER NOT NULL REFERENCES run(id) ON DELETE CASCADE,
+    person_id    INTEGER REFERENCES person(id) ON DELETE SET NULL,
+    score        INTEGER,
+    submitted_at TEXT
+);
+
 -- Typed capture (B9) — the timestamped evidence spine (Q4, report spec Sec 6).
 CREATE TABLE IF NOT EXISTS timeline_event (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -501,3 +519,45 @@ def add_task(run_id, phase, title):
             "INSERT INTO run_task (run_id, phase, title, sort) VALUES (?, ?, ?, ?)",
             (run_id, phase, title, nxt),
         )
+
+
+# ---- flexible key-value (impact, per-type summary, debrief, closing notes) -----
+def get_kv(run_id):
+    with get_conn() as conn:
+        rows = conn.execute("SELECT key, value FROM run_kv WHERE run_id = ?", (run_id,)).fetchall()
+    return {r["key"]: r["value"] for r in rows}
+
+
+def set_kv_many(run_id, mapping):
+    with get_conn() as conn:
+        for k, v in mapping.items():
+            conn.execute(
+                "INSERT INTO run_kv (run_id, key, value) VALUES (?, ?, ?) "
+                "ON CONFLICT(run_id, key) DO UPDATE SET value = excluded.value",
+                (run_id, k, v),
+            )
+
+
+def set_kv(run_id, key, value):
+    set_kv_many(run_id, {key: value})
+
+
+# ---- confidence vote -----------------------------------------------------
+def set_vote(run_id, person_id, score):
+    with get_conn() as conn:
+        conn.execute(
+            "DELETE FROM run_vote WHERE run_id = ? AND person_id = ?", (run_id, person_id)
+        )
+        conn.execute(
+            "INSERT INTO run_vote (run_id, person_id, score, submitted_at) VALUES (?, ?, ?, ?)",
+            (run_id, person_id, score, now_str()),
+        )
+
+
+def list_votes(run_id):
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT v.*, p.full_name AS voter FROM run_vote v "
+            "LEFT JOIN person p ON p.id = v.person_id WHERE v.run_id = ? ORDER BY p.full_name",
+            (run_id,),
+        ).fetchall()

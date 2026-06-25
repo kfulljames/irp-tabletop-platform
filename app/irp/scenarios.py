@@ -35,6 +35,15 @@ CAPTURE_TYPES = [
 # Incident lifecycle phases for the phase tracker (Exigence-style).
 PHASES = ["Detection", "Investigation", "Containment", "Communication", "Legal/Regulatory", "Recovery"]
 
+# Impact-to-Business dimensions for the Overview/report (Exigence-style: rating + explanation).
+IMPACT_DIMENSIONS = [
+    ("operational", "Operational"),
+    ("reputation", "PR / Reputation"),
+    ("legal", "Legal / Regulatory"),
+    ("financial", "Financial"),
+]
+IMPACT_RATINGS = ["None", "Low", "Medium", "High"]
+
 # Map an inject's category to the lifecycle phase it represents (drives the phase bar).
 CATEGORY_TO_PHASE = {
     "Detection": "Detection",
@@ -179,6 +188,16 @@ BEC = {
         ("Recovery", "Notify cyber insurer and engage breach counsel"),
         ("Recovery", "Produce written summary for the affected client"),
         ("Recovery", "Capture plan gaps and corrective actions"),
+    ],
+    # Incident-type-specific summary block (report spec Sec 3). kind: text | yesno | choice
+    "summary_title": "BEC Summary",
+    "summary_fields": [
+        ("funds_lost", "Funds lost?", "yesno"),
+        ("amount_lost", "Amount lost (USD)", "text"),
+        ("mailboxes", "Mailboxes compromised (#)", "text"),
+        ("funds_recovered", "Funds recovered?", "choice:Yes,No,Partial"),
+        ("source", "Source of compromise", "text"),
+        ("fraud_txns", "# fraudulent transactions", "text"),
     ],
 }
 

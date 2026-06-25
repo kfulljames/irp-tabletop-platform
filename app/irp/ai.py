@@ -117,6 +117,32 @@ def analyze_plan(plan_text: str, api_key: Optional[str] = None,
     return result
 
 
+CLOSING_SYSTEM = (
+    "You write the closing notes for a SOC 2-grade incident-response tabletop evidence report. "
+    "Produce a clear, factual, neutral narrative (~150-250 words) of how the exercise unfolded: "
+    "what happened, when it was first reported, when it was resolved, the key decisions made, who "
+    "was contacted, the business impact, and the resolution. Use only the facts provided — do not "
+    "invent details. Write in past tense, third person. This is a draft a human facilitator will "
+    "review and approve."
+)
+
+
+def closing_notes(context_text: str, api_key: Optional[str] = None,
+                  model: Optional[str] = None) -> str:
+    """Draft the incident closing-notes narrative from the assembled run context (B15, suggest-only)."""
+    client = _client(api_key)
+    model = model or MODEL
+    response = client.messages.create(
+        model=model,
+        max_tokens=1200,
+        system=CLOSING_SYSTEM,
+        messages=[{"role": "user", "content":
+                   "Write the closing notes from this exercise record:\n\n" + context_text[:60_000]}],
+    )
+    parts = [b.text for b in response.content if getattr(b, "type", "") == "text"]
+    return "\n".join(parts).strip()
+
+
 def analysis_to_db_rows(analysis: PlanAnalysis):
     """Split a PlanAnalysis into plan_section rows and gap_finding rows for storage."""
     valid_keys = {k for k, _, _ in BASELINE_CHAPTERS}

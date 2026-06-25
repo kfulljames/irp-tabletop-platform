@@ -244,5 +244,85 @@ real-incident-compatible (Q21) without carrying v2 scope.
 
 _All 40 questions answered. Next: translate these decisions into the product requirements /
 roadmap (`03-PRODUCT-REQUIREMENTS.md`) and the report spec (`02-EVIDENCE-REPORT-SPEC.md`)._
+
+---
+
+# Build-detail decisions (Round 2 — resumed 2026-06-25)
+
+_Targeted round to de-risk the build before drafting requirements. Numbered B1+._
+
+### B0 — Build stack
+**Answer:** **Lovable + Supabase.** Lovable for the app build (has magic-link auth built in,
+Q17); Supabase as Postgres DB + auth + storage — natural fit for multi-tenant (Q16),
+multi-email-per-user (Q39), and structured plan/evidence storage. Requirements doc will be
+written concretely against this stack.
+
+### B1 — Tenant hierarchy
+**Answer:** **Facilitator workspace owns client orgs.** the MSP = a facilitator workspace that
+creates/owns client orgs beneath it; facilitator sees across its own clients, but each client
+org is isolated from other clients. White-label (Q36) = each facilitator workspace owns its own
+client set. → Data model: `facilitator_workspace → client_org → (people, plans, contacts, runs)`.
+
+### B2 — In-app roles
+**Answer:** **Four roles:** **Facilitator** (full control, act-as, runs session), **Client
+Admin** (manages their org's people/plans/contacts), **Participant** (light session view + own
+votes, Q38), **Observer** (read-only presence, appears in evidence, Q19).
+
+### B3 — Plan ingestion structure
+**Answer:** **Map to canonical schema, keep original text.** AI parses uploaded IRP/BCP into a
+fixed canonical best-practice section schema, preserving the client's original text under each
+mapped section. Missing/unmapped chapters surface as gaps automatically. Enables consistent gap
+analysis (Q8) + clean redline (Q14/Q15). → The canonical schema = the structured-plan model
+(Q14 build implication).
+
+### B4 — Gap-analysis baseline
+**Answer:** **Single global baseline for v1**, assembled from the IR-plan key chapters
+(04-REFERENCE-NOTES) + the MSP ITIL policy + CISA/HSEEP conventions. Per-industry tailoring is
+later. The canonical schema (B3) and this baseline are the same backbone.
+
+### B5 — Plan-change output
+**Answer:** **Punch-list only for v1**; full tracked-changes redline rendering deferred
+post-v1. _(Refines Q14 — Q14 included an actual redlined IRP; v1 ships the actionable
+punch-list of changes by section, redline doc comes later. Consistent with the CTO's Q15 note:
+"whether it's a redline version or just notes that need to be updated later.")_ → Still capture
+changes as **discrete change-items tied to a plan section** (owner/severity/recommended change)
+so a redline renderer can be added later over the same records without rework.
+
+### B6 — Setup wizard ownership
+**Answer:** **Multiple contributors, facilitator owns.** Facilitator and others (e.g., Client
+Admin) can make entries into the setup wizard (people/roles, data-access map, third-party
+directory, tech basics), but **ownership/sign-off sits with the facilitator.** → Permissions:
+Client Admin can create/edit their org's setup data; facilitator is the authoritative owner.
+
+### B7 — Named-people personalization
+**Answer:** **Role-slots auto-fill named people.** Injects reference role-slots (e.g., "the
+CFO," "a finance employee") that auto-fill with the org's real named people from the setup
+wizard (Q9); facilitator can override the specific person per run. Keeps scenarios reusable
+while feeling real.
+
+### B8 — Inject data model  _(reconciled with Q20)_
+**Answer:** **Content + optional facilitator-guidance field.** Each inject = content shown to
+the room **plus an optional teleprompter/guidance field**. Seed scenarios may ship with light or
+no guidance now; the field exists structurally so guidance can be added as the service scales to
+other facilitators. Squares the "minimal to author" instinct with Q20 (teleprompter is the
+non-the CTO scaling mechanism) — Q20 stands, just not mandatory per inject.
+
+### B9 — Run-time capture model
+**Answer:** **Typed capture.** Distinct, structured capture types matching the sample timeline:
+**Business Decision · Comms Decision** (who/what/when/how + reasoning, Q13) **· Task assigned-out**
+(tech work assigned + reported back, Q10) **· Status/Overview update · Note/plan-change flag**
+(feeds the punch-list, B5). Every entry **act-as attributed (Q6) + timestamped (B10)**. Types map
+directly to the evidence Timeline categories (02-EVIDENCE-REPORT-SPEC Sec 6).
+
+### B10 — Session clock mechanics
+**Answer:** **Real running wall-clock + manual edit.** Every event timestamped at capture;
+facilitator can edit/backfill/adjust any time. **No simulated/compressed time** in v1 (matches
+the May sample's real ~40-min timeline). Confirms/clarifies Q18.
+
+### B11 — Remote participation
+**Answer:** **Live remote session view in v1.** Remote participants join a running session via
+magic link to a live view (current inject + their act-as prompts + EOS vote); the
+facilitator/projector view is the shared presenter screen. Delivers Q35 ("both") + Q38 (light
+view) in v1, not as a fast-follow.
 39. **Notifications** — does the tool simulate/send anything, or purely log? (Q13 leans: log only)
 40. **MVP cut** — the smallest first build that delivers a real engagement + report.

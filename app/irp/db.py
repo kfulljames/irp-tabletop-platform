@@ -96,6 +96,20 @@ def get_client(client_id):
         ).fetchone()
 
 
+def update_client(client_id, name, industry=None):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE client_org SET name = ?, industry = ? WHERE id = ?",
+            (name, industry, client_id),
+        )
+
+
+def delete_client(client_id):
+    # FK cascade (PRAGMA foreign_keys=ON) removes the client's plans/sections/gaps too.
+    with get_conn() as conn:
+        conn.execute("DELETE FROM client_org WHERE id = ?", (client_id,))
+
+
 # ---- plans ---------------------------------------------------------------
 def create_plan(client_org_id, kind, source_filename, full_text):
     with get_conn() as conn:

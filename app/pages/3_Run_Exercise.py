@@ -244,30 +244,28 @@ with main:
                 db.set_kv_many(run["id"], {**impact_vals, **summary_vals})
                 st.success("Overview saved.")
 
-    # --- Inject deck (hero card) ---
-    st.subheader("Inject deck")
+    # --- Scenario inject (fly-over popover; minimize for more room) ---
     if injects:
-        nav = st.columns([1, 3, 1, 4])
+        nav = st.columns([1, 1, 6])
         if nav[0].button("◀ Prev", disabled=idx == 0, use_container_width=True):
             db.set_current_inject(run["id"], idx - 1)
             st.rerun()
-        nav[1].markdown(f"<div style='text-align:center;padding-top:6px'>Inject "
-                        f"<b>{idx + 1}</b> of {len(injects)} · <i>{inj['category']}</i></div>",
-                        unsafe_allow_html=True)
-        if nav[2].button("Next ▶", disabled=idx >= len(injects) - 1, use_container_width=True):
+        if nav[1].button("Next ▶", disabled=idx >= len(injects) - 1, use_container_width=True):
             new_idx = idx + 1
             db.set_current_inject(run["id"], new_idx)
             db.add_event(run["id"], "Inject", None,
                          f"Inject {new_idx + 1}: {injects[new_idx]['title']}", timezone=run_tz)
             st.rerun()
-
-        with st.container(border=True):
+        with st.popover(f"📨  Inject {idx + 1}/{len(injects)} — {inj['title']}",
+                        use_container_width=True):
+            st.caption(f"Phase: {inj['category']}")
             st.markdown(f"### {inj['title']}")
             st.markdown(
-                f"<div style='font-size:1.15rem; line-height:1.7;'>{inj['room']}</div>",
+                f"<div style='font-size:1.12rem; line-height:1.7;'>{inj['room']}</div>",
                 unsafe_allow_html=True,
             )
-        with st.expander("🎙️ Facilitator guidance (don't read aloud)"):
+            st.divider()
+            st.markdown("**🎙️ Facilitator guidance** (don't read aloud)")
             st.markdown(inj["guidance"])
     else:
         st.info("This scenario has no injects authored yet.")

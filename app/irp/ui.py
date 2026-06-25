@@ -57,6 +57,45 @@ def selected_model():
     return st.session_state.get("model", "claude-haiku-4-5")
 
 
+def sidebar_client_picker(label="Client / tenant"):
+    """Render the tenant selector in the sidebar; returns the selected client id or None."""
+    clients = db.list_clients()
+    with st.sidebar:
+        st.subheader("Client")
+        if not clients:
+            st.info("No clients yet — add one on the **Clients** page.")
+            return None
+        labels, idmap = [], {}
+        for c in clients:
+            lab = c["name"]
+            if lab in idmap:
+                lab = f"{c['name']} (#{c['id']})"
+            labels.append(lab)
+            idmap[lab] = c["id"]
+        default_id = st.session_state.get("client_id")
+        index = next((i for i, lab in enumerate(labels) if idmap[lab] == default_id), 0)
+        chosen = st.selectbox(label, labels, index=index, key="tenant_select")
+        cid = idmap[chosen]
+        st.session_state["client_id"] = cid
+        return cid
+
+
+def tenant_banner(client):
+    """A sticky green bar pinned to the top showing the active tenant (avoids wrong-tenant uploads)."""
+    name = client["name"] if client else "—"
+    st.markdown(
+        f"""
+        <div style="position: sticky; top: 0; z-index: 1000; background: #157347;
+             color: #ffffff; padding: 10px 16px; border-radius: 8px; margin: 0 0 16px 0;
+             font-weight: 600; font-size: 1.05rem;
+             box-shadow: 0 2px 8px rgba(0,0,0,0.25);">
+          🏢 Working in: {name}
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def client_picker(label="Client"):
     """Render a client selectbox; return the selected client_org id or None."""
     clients = db.list_clients()

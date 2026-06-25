@@ -3,11 +3,18 @@ import streamlit as st
 from irp import db, ai
 from irp.pdfutil import extract_text
 from irp.baseline import BASELINE_BY_KEY
-from irp.ui import sidebar_api_key, client_picker, selected_model
+from irp.ui import sidebar_api_key, sidebar_client_picker, tenant_banner, selected_model
 
 st.set_page_config(page_title="Plan & Gaps · IRP Tabletop", page_icon="🛡️", layout="wide")
 db.init_db()
+client_id = sidebar_client_picker()
 api_key = sidebar_api_key()
+
+if client_id is None:
+    st.warning("Add a client on the **Clients** page first, then pick it in the sidebar.")
+    st.stop()
+
+tenant_banner(db.get_client(client_id))
 
 st.title("Plan & Gaps")
 st.caption(
@@ -15,10 +22,6 @@ st.caption(
     "BCP), then run one AI gap analysis across all of them. The AI proposes; you review and "
     "accept (suggest-only, human-approved)."
 )
-
-client_id = client_picker()
-if client_id is None:
-    st.stop()
 
 # --- 1. Plan documents ----------------------------------------------------
 st.subheader("1. Plan documents")
@@ -59,25 +62,40 @@ if docs:
                 db.delete_document(d["id"])
                 st.rerun()
 
-# Drag-and-drop dropzone that resets after adding.
+# Drag-and-drop dropzone — ingests the moment files are selected, then resets.
+flash = st.session_state.pop("upload_flash", None)
+if flash:
+    for level, msg in flash:
+        getattr(st, level)(msg)
+
 rev = st.session_state.get("uprev", 0)
 files = st.file_uploader(
     "Drag & drop the plan PDFs here  —  or click to browse",
     type=["pdf"], accept_multiple_files=True, key=f"up_{client_id}_{rev}",
 )
 if files:
-    if st.button(f"➕ Add {len(files)} document(s)", type="primary"):
-        skipped = []
-        for f in files:
-            text = extract_text(f.getvalue())
-            if text:
-                db.add_document(client_id, guess_type(f.name), f.name, text)
-            else:
-                skipped.append(f.name)
-        if skipped:
-            st.warning("Couldn't read (scanned image?): " + ", ".join(skipped))
-        st.session_state["uprev"] = rev + 1   # reset the dropzone
-        st.rerun()
+    existing = {d["source_filename"] for d in db.list_documents(client_id)}
+    added, dup, img = 0, [], []
+    for f in files:
+        if f.name in existing:
+            dup.append(f.name)
+            continue
+        text = extract_text(f.getvalue())
+        if text:
+            db.add_document(client_id, guess_type(f.name), f.name, text)
+            added += 1
+        else:
+            img.append(f.name)
+    msgs = []
+    if added:
+        msgs.append(("success", f"Added {added} document(s)."))
+    if dup:
+        msgs.append(("info", "Already on file (skipped): " + ", ".join(dup)))
+    if img:
+        msgs.append(("warning", "Couldn't read (scanned image?): " + ", ".join(img)))
+    st.session_state["upload_flash"] = msgs
+    st.session_state["uprev"] = rev + 1   # reset the dropzone so it's ready for more
+    st.rerun()
 
 docs = db.list_documents(client_id)
 if not docs:

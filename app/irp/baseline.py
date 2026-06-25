@@ -22,12 +22,15 @@ BASELINE_CHAPTERS = [
      "A severity matrix with response/resolution SLAs per level (e.g. Critical 4h, Major 8h)."),
     ("escalation_declaration", "Escalation & Declaration",
      "Thresholds and path for escalating, and who formally declares a major incident."),
-    ("containment", "Containment",
-     "Steps to limit spread and damage while preserving evidence."),
-    ("eradication_recovery", "Eradication & Recovery",
-     "Removing the threat, restoring service, and verifying recovery (with RTO/RPO targets)."),
-    ("evidence_forensics", "Evidence Handling & Forensics",
-     "Chain-of-custody and what data to collect for investigation and legal use."),
+    ("containment", "Containment — ownership & authority",
+     "WHO is responsible for containment and WHO authorizes disruptive actions (e.g. taking "
+     "systems offline). Names the technical owner / external partner — NOT the technical steps."),
+    ("eradication_recovery", "Eradication & Recovery — ownership",
+     "WHO owns eradication and restoration and which partner (MSP / forensics / IR firm) is "
+     "engaged; recovery priorities and RTO/RPO targets. Not the technical how-to."),
+    ("evidence_forensics", "Forensics Partner & Evidence",
+     "Which forensics / IR partner to engage and who decides to involve them. Evidence "
+     "preservation is delegated to that partner — not a chain-of-custody procedure here."),
     ("internal_comms", "Internal Communications",
      "Who informs leadership and staff, on what cadence, and through which channels — "
      "including a path that works if normal systems/email are down."),
@@ -39,8 +42,9 @@ BASELINE_CHAPTERS = [
     ("third_party_directory", "Third-Party / Vendor Contacts",
      "A maintained directory: cyber insurer, breach counsel, forensics, PR firm, ransom "
      "negotiator, DR provider, ISP, law enforcement — with current names and numbers."),
-    ("business_continuity", "Business Continuity / DR",
-     "How the business keeps operating during the incident; recovery procedures per disruption type."),
+    ("business_continuity", "Business Continuity / DR — ownership",
+     "Who keeps the business running during the incident, the recovery priorities, and which "
+     "DR provider is engaged. Ownership and priorities — not step-by-step recovery procedures."),
     ("post_incident_review", "Post-Incident Review & Lessons Learned",
      "A blameless post-mortem covering what happened, how well it was handled, and "
      "corrective actions tied to root cause."),

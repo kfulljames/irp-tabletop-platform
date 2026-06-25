@@ -150,6 +150,12 @@ _Core tables. `*` = tenant-scoping column for RLS._
 - **A3** AI parses the plan into `plan_section` rows mapped to `baseline_chapter` keys, preserving
   original text; unmapped/missing chapters flagged (B3).
 - **A4** AI pre-gap analysis vs the global baseline → `gap_finding` rows (`ai_suggested`) (Q8).
+  **Calibration (from field feedback):** the plan is an executive **coordination/decision**
+  document, not a technical runbook (Q10). The gap analysis must flag unclear ownership /
+  decision authority, missing or stale **contacts** (PR firm, insurer, negotiator, out-of-band
+  path), and notification gaps — and must **not** flag the absence of step-by-step technical
+  procedures. Treat an auditor-approved plan as a high bar; be conservative, don't invent
+  "more thoroughness."
 - **A5** Setup wizard (multi-contributor, facilitator-owned, B6): people + roles, access tags,
   third-party directory, tech basics (Q10). Client Admin may pre-fill.
 

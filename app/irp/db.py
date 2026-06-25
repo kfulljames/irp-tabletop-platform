@@ -8,6 +8,12 @@ model in 03-PRODUCT-REQUIREMENTS.md so the concepts port later.
 import os
 import sqlite3
 from contextlib import contextmanager
+from datetime import datetime
+
+
+def now_str():
+    """Local wall-clock timestamp, so the evidence timeline reads in the facilitator's time."""
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
 DB_PATH = os.path.join(DATA_DIR, "irp.db")
@@ -52,6 +58,48 @@ CREATE TABLE IF NOT EXISTS gap_finding (
     status             TEXT NOT NULL DEFAULT 'ai_suggested', -- ai_suggested | validated | dismissed
     source             TEXT NOT NULL DEFAULT 'ai',        -- ai | room
     created_at         TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- People roster for a client (setup wizard, Q10). Used for act-as attribution (Q6).
+CREATE TABLE IF NOT EXISTS person (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_org_id INTEGER NOT NULL REFERENCES client_org(id) ON DELETE CASCADE,
+    full_name     TEXT NOT NULL,
+    title         TEXT,
+    incident_role TEXT,
+    created_at    TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- A single live exercise/session (Q-D1: one run = one session).
+CREATE TABLE IF NOT EXISTS run (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    client_org_id  INTEGER NOT NULL REFERENCES client_org(id) ON DELETE CASCADE,
+    scenario_key   TEXT NOT NULL,
+    scenario_title TEXT,
+    status         TEXT NOT NULL DEFAULT 'running',  -- running | complete
+    current_inject INTEGER NOT NULL DEFAULT 0,
+    started_at     TEXT,
+    resolved_at    TEXT,
+    created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE TABLE IF NOT EXISTS run_participant (
+    id        INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id    INTEGER NOT NULL REFERENCES run(id) ON DELETE CASCADE,
+    person_id INTEGER NOT NULL REFERENCES person(id) ON DELETE CASCADE,
+    role      TEXT NOT NULL DEFAULT 'participant'  -- participant | observer
+);
+
+-- Typed capture (B9) — the timestamped evidence spine (Q4, report spec Sec 6).
+CREATE TABLE IF NOT EXISTS timeline_event (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id           INTEGER NOT NULL REFERENCES run(id) ON DELETE CASCADE,
+    occurred_at      TEXT NOT NULL,
+    type             TEXT NOT NULL,
+    acting_person_id INTEGER REFERENCES person(id) ON DELETE SET NULL,  -- act-as (Q6)
+    description      TEXT,
+    payload          TEXT,
+    created_at       TEXT NOT NULL DEFAULT (datetime('now'))
 );
 """
 
@@ -219,3 +267,126 @@ def gaps_for_client(client_org_id):
 def set_gap_status(gap_id, status):
     with get_conn() as conn:
         conn.execute("UPDATE gap_finding SET status = ? WHERE id = ?", (status, gap_id))
+
+
+def add_room_gap(client_org_id, title, description, severity="medium",
+                 recommended_change="", baseline_key=None):
+    """A plan-gap captured live in the exercise (source='room', already validated)."""
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO gap_finding "
+            "(client_org_id, baseline_key, title, description, recommended_change, severity, status, source) "
+            "VALUES (?, ?, ?, ?, ?, ?, 'validated', 'room')",
+            (client_org_id, baseline_key, title, description, recommended_change, severity),
+        )
+
+
+# ---- people --------------------------------------------------------------
+def add_person(client_org_id, full_name, title=None, incident_role=None):
+    with get_conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO person (client_org_id, full_name, title, incident_role) VALUES (?, ?, ?, ?)",
+            (client_org_id, full_name, title, incident_role),
+        )
+        return cur.lastrowid
+
+
+def list_people(client_org_id):
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM person WHERE client_org_id = ? ORDER BY full_name", (client_org_id,)
+        ).fetchall()
+
+
+def delete_person(person_id):
+    with get_conn() as conn:
+        conn.execute("DELETE FROM person WHERE id = ?", (person_id,))
+
+
+# ---- runs ----------------------------------------------------------------
+def create_run(client_org_id, scenario_key, scenario_title):
+    with get_conn() as conn:
+        cur = conn.execute(
+            "INSERT INTO run (client_org_id, scenario_key, scenario_title, status, started_at) "
+            "VALUES (?, ?, ?, 'running', ?)",
+            (client_org_id, scenario_key, scenario_title, now_str()),
+        )
+        return cur.lastrowid
+
+
+def active_run_for_client(client_org_id):
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM run WHERE client_org_id = ? AND status = 'running' "
+            "ORDER BY created_at DESC LIMIT 1",
+            (client_org_id,),
+        ).fetchone()
+
+
+def get_run(run_id):
+    with get_conn() as conn:
+        return conn.execute("SELECT * FROM run WHERE id = ?", (run_id,)).fetchone()
+
+
+def list_runs(client_org_id):
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT * FROM run WHERE client_org_id = ? ORDER BY created_at DESC", (client_org_id,)
+        ).fetchall()
+
+
+def set_current_inject(run_id, idx):
+    with get_conn() as conn:
+        conn.execute("UPDATE run SET current_inject = ? WHERE id = ?", (idx, run_id))
+
+
+def resolve_run(run_id):
+    with get_conn() as conn:
+        conn.execute(
+            "UPDATE run SET status = 'complete', resolved_at = ? WHERE id = ?",
+            (now_str(), run_id),
+        )
+
+
+# ---- participants --------------------------------------------------------
+def add_participant(run_id, person_id, role="participant"):
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO run_participant (run_id, person_id, role) VALUES (?, ?, ?)",
+            (run_id, person_id, role),
+        )
+
+
+def list_participants(run_id):
+    with get_conn() as conn:
+        return conn.execute(
+            "SELECT rp.id AS rp_id, rp.role, p.* FROM run_participant rp "
+            "JOIN person p ON p.id = rp.person_id WHERE rp.run_id = ? ORDER BY p.full_name",
+            (run_id,),
+        ).fetchall()
+
+
+# ---- timeline ------------------------------------------------------------
+def add_event(run_id, etype, acting_person_id, description, payload=None):
+    with get_conn() as conn:
+        conn.execute(
+            "INSERT INTO timeline_event (run_id, occurred_at, type, acting_person_id, description, payload) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (run_id, now_str(), etype, acting_person_id, description, payload),
+        )
+
+
+def list_events(run_id, newest_first=True):
+    order = "DESC" if newest_first else "ASC"
+    with get_conn() as conn:
+        return conn.execute(
+            f"SELECT te.*, p.full_name AS acting_name FROM timeline_event te "
+            f"LEFT JOIN person p ON p.id = te.acting_person_id "
+            f"WHERE te.run_id = ? ORDER BY te.occurred_at {order}, te.id {order}",
+            (run_id,),
+        ).fetchall()
+
+
+def delete_event(event_id):
+    with get_conn() as conn:
+        conn.execute("DELETE FROM timeline_event WHERE id = ?", (event_id,))

@@ -376,5 +376,10 @@ the **Anthropic API — no training on customer data** — the concrete privacy 
 
 _Build round complete (B0–B15). Decisions are sufficient to draft `03-PRODUCT-REQUIREMENTS.md`
 (v1 spec + data model + roadmap) against the Lovable + Supabase stack._
+
+### B16 — Team model: no groups (2026-06-25)
+**Answer:** **No team groups.** Mid-market clients aren't large enough to need group structures
+(Exigence has "Executive leadership / Response Team" groups). **Direct person → incident-role
+assignment is sufficient** (and already how the prototype works). Skip group hierarchy in v1.
 39. **Notifications** — does the tool simulate/send anything, or purely log? (Q13 leans: log only)
 40. **MVP cut** — the smallest first build that delivers a real engagement + report.

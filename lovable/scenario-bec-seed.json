@@ -1,0 +1,90 @@
+{
+  "scenario": {
+    "key": "bec",
+    "title": "Business Email Compromise — fraudulent invoice / payment diversion",
+    "summary": "A client paid an invoice to bank details that were not yours. A mailbox appears compromised and altered invoices have gone to clients. Tests detection, escalation, money/comms/legal decisions, and who-to-contact under pressure.",
+    "summary_title": "BEC Summary",
+    "summary_fields": [
+      ["funds_lost", "Funds lost?", "yesno"],
+      ["amount_lost", "Amount lost (USD)", "text"],
+      ["mailboxes", "Mailboxes compromised (#)", "text"],
+      ["funds_recovered", "Funds recovered?", "choice:Yes,No,Partial"],
+      ["source", "Source of compromise", "text"],
+      ["fraud_txns", "# fraudulent transactions", "text"]
+    ]
+  },
+  "injects": [
+    {
+      "ord": 0,
+      "title": "The first call",
+      "category": "Detection",
+      "room": "A long-standing client emails your finance team: \"We paid the $48,000 invoice three weeks ago to the banking details on the invoice you sent — why are you now saying it's overdue?\" The bank details they paid are not yours.",
+      "guidance": "Who in the room hears this first, and who do they tell? Is this treated as a one-off billing dispute or a potential incident? Probe: who has the authority to declare an incident here, and what would make them do it?"
+    },
+    {
+      "ord": 1,
+      "title": "It came from us",
+      "category": "Detection",
+      "room": "Finance confirms the client received an emailed invoice from a the MSP address with altered banking details. The email appears to have come from a real internal mailbox.",
+      "guidance": "Now the concern is a compromised mailbox, not a billing error. Who investigates, and who decides to pull in IT/security? Watch for the team jumping to technical fixes — the executive job here is to confirm scope and assign an owner."
+    },
+    {
+      "ord": 2,
+      "title": "Confirmed compromise",
+      "category": "Escalation",
+      "room": "IT finds inbox rules quietly forwarding finance emails to an external address, and sign-in logs show the mailbox was accessed from an unfamiliar location three weeks ago.",
+      "guidance": "This is now a confirmed breach. Who formally declares it? Who is named Incident Commander? Is leadership notified — and using what channel, given email itself may be untrustworthy? Probe the out-of-band contact path."
+    },
+    {
+      "ord": 3,
+      "title": "The money is gone",
+      "category": "Decision",
+      "room": "The $48,000 has likely already left the client's account to a fraudulent account. The client is asking, pointedly, what you are going to do about it.",
+      "guidance": "Decisions to surface: who contacts the bank and law enforcement, and how fast? Who owns the client relationship through this? When do you notify the cyber insurer and engage breach counsel? Note who they say to call — that's the test."
+    },
+    {
+      "ord": 4,
+      "title": "It's spreading",
+      "category": "Comms",
+      "room": "A second client calls: they also received \"updated banking details\" last week and are about to pay a $30,000 invoice.",
+      "guidance": "Containment is now also a communications problem. Who warns all clients, with what message, and who approves it going out? Is the PR/comms partner engaged? Speed vs. accuracy — what do they decide?"
+    },
+    {
+      "ord": 5,
+      "title": "Make it stop",
+      "category": "Containment",
+      "room": "You need confidence that no other mailboxes are compromised and that the forwarding rules and any persistence are gone.",
+      "guidance": "Who OWNS the technical containment — internal IT, the MSP, or an external forensics/IR firm — and who authorizes it? The plan should name the owner and the partner to call; it does not need the technical steps."
+    },
+    {
+      "ord": 6,
+      "title": "What are we obligated to do?",
+      "category": "Legal",
+      "room": "Counsel asks whether client financial data or personal information was exposed, which may trigger breach-notification obligations and regulator timelines.",
+      "guidance": "Who determines the data scope? What notification obligations and deadlines apply, and who owns them? Regulators, affected clients, timing. Watch for uncertainty about who actually makes this call."
+    },
+    {
+      "ord": 7,
+      "title": "Stabilized — now account for it",
+      "category": "Recovery",
+      "room": "Forwarding rules are removed, passwords reset, MFA enforced, and clients have been warned. The client who lost funds wants a written summary of what happened.",
+      "guidance": "Who produces the written summary and what goes in it? Then the readiness question: what in the plan was unclear or missing during this exercise? Capture those as plan-gap notes — they feed the punch-list and the evidence report."
+    }
+  ],
+  "tasks": [
+    { "phase": "Detection", "title": "Document the details of the detection", "ord": 0 },
+    { "phase": "Detection", "title": "Confirm whether a mailbox/account is compromised", "ord": 1 },
+    { "phase": "Investigation", "title": "Identify which accounts/systems were accessed, and from where", "ord": 2 },
+    { "phase": "Investigation", "title": "Determine whether funds left the account; engage the bank", "ord": 3 },
+    { "phase": "Containment", "title": "Reset credentials and enforce MFA on affected accounts", "ord": 4 },
+    { "phase": "Containment", "title": "Remove malicious inbox rules / forwarding", "ord": 5 },
+    { "phase": "Containment", "title": "Engage forensics / IR partner (decide owner)", "ord": 6 },
+    { "phase": "Communication", "title": "Warn all clients to verify banking details before paying", "ord": 7 },
+    { "phase": "Communication", "title": "Approve external / PR messaging (engage PR partner)", "ord": 8 },
+    { "phase": "Legal/Regulatory", "title": "Determine data / PII exposure scope with counsel", "ord": 9 },
+    { "phase": "Legal/Regulatory", "title": "Assess breach-notification obligations and deadlines", "ord": 10 },
+    { "phase": "Recovery", "title": "Notify cyber insurer and engage breach counsel", "ord": 11 },
+    { "phase": "Recovery", "title": "Produce written summary for the affected client", "ord": 12 },
+    { "phase": "Recovery", "title": "Capture plan gaps and corrective actions", "ord": 13 }
+  ]
+}

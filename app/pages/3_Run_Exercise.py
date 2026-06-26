@@ -148,25 +148,58 @@ for ph in PHASES:
     )
 st.markdown("&nbsp;&nbsp;".join(chips), unsafe_allow_html=True)
 
+# --- Scenario navigation: Prev/Next sit right under the phase chips, plus the
+#     inject fly-over (popover; minimize for more room to capture below). ---
+if injects:
+    nav = st.columns([1, 1, 6])
+    if nav[0].button("◀ Prev", disabled=idx == 0, use_container_width=True):
+        db.set_current_inject(run["id"], idx - 1)
+        st.rerun()
+    if nav[1].button("Next ▶", disabled=idx >= len(injects) - 1, use_container_width=True):
+        new_idx = idx + 1
+        db.set_current_inject(run["id"], new_idx)
+        db.add_event(run["id"], "Inject", None,
+                     f"Inject {new_idx + 1}: {injects[new_idx]['title']}", timezone=run_tz)
+        st.rerun()
+    with nav[2].popover(f"📨  Inject {idx + 1}/{len(injects)} — {inj['title']}",
+                        use_container_width=True):
+        st.caption(f"Phase: {inj['category']}")
+        st.markdown(f"### {inj['title']}")
+        st.markdown(
+            f"<div style='font-size:1.12rem; line-height:1.7;'>{inj['room']}</div>",
+            unsafe_allow_html=True,
+        )
+        st.divider()
+        st.markdown("**🎙️ Facilitator guidance** (don't read aloud)")
+        st.markdown(inj["guidance"])
+
 # Seed the task library if needed (used by the right-hand task bar).
 all_tasks = db.list_tasks(run["id"])
 if not all_tasks and scenario.get("tasks"):
     db.seed_tasks(run["id"], scenario["tasks"])
     all_tasks = db.list_tasks(run["id"])
 
+# Make the right-hand task panel read as a tall vertical column, not a box.
+st.markdown(
+    "<style>[data-testid='stVerticalBlockBorderWrapper']:has(#taskcol)"
+    "{min-height:62vh;background:#1b1e24;}</style>",
+    unsafe_allow_html=True,
+)
+
 st.divider()
 main, side = st.columns([3, 1.3])
 
-# ==== RIGHT: phase-scoped incident task bar ====
+# ==== RIGHT: phase-scoped incident task bar (tall panel reads as a column) ====
 with side:
-    st.markdown("#### ✅ Incident tasks")
-    if cur_phase:
-        st.caption(f"Phase: **{cur_phase}**")
-    phase_tasks = [t for t in all_tasks if t["phase"] == cur_phase]
-    if not phase_tasks:
-        st.caption("No tasks for this phase.")
-    else:
-        with st.container(border=True):
+    with st.container(border=True):
+        st.markdown("<div id='taskcol'></div>", unsafe_allow_html=True)
+        st.markdown("#### ✅ Incident tasks")
+        if cur_phase:
+            st.caption(f"Phase: **{cur_phase}**")
+        phase_tasks = [t for t in all_tasks if t["phase"] == cur_phase]
+        if not phase_tasks:
+            st.caption("No tasks for this phase.")
+        else:
             with st.form(f"tasks_{run['id']}_{cur_phase}"):
                 pvals = {}
                 for t in phase_tasks:
@@ -180,8 +213,8 @@ with side:
                     for tid, (stat, asg) in pvals.items():
                         db.set_task(tid, stat, asg)
                     st.rerun()
-    done_all = sum(1 for t in all_tasks if t["status"] == "done")
-    st.caption(f"Overall: {done_all}/{len(all_tasks)} done across all phases")
+        done_all = sum(1 for t in all_tasks if t["status"] == "done")
+        st.caption(f"Overall: {done_all}/{len(all_tasks)} done across all phases")
 
 # ==== LEFT: the console ====
 with main:
@@ -243,32 +276,6 @@ with main:
                 })
                 db.set_kv_many(run["id"], {**impact_vals, **summary_vals})
                 st.success("Overview saved.")
-
-    # --- Scenario inject (fly-over popover; minimize for more room) ---
-    if injects:
-        nav = st.columns([1, 1, 6])
-        if nav[0].button("◀ Prev", disabled=idx == 0, use_container_width=True):
-            db.set_current_inject(run["id"], idx - 1)
-            st.rerun()
-        if nav[1].button("Next ▶", disabled=idx >= len(injects) - 1, use_container_width=True):
-            new_idx = idx + 1
-            db.set_current_inject(run["id"], new_idx)
-            db.add_event(run["id"], "Inject", None,
-                         f"Inject {new_idx + 1}: {injects[new_idx]['title']}", timezone=run_tz)
-            st.rerun()
-        with st.popover(f"📨  Inject {idx + 1}/{len(injects)} — {inj['title']}",
-                        use_container_width=True):
-            st.caption(f"Phase: {inj['category']}")
-            st.markdown(f"### {inj['title']}")
-            st.markdown(
-                f"<div style='font-size:1.12rem; line-height:1.7;'>{inj['room']}</div>",
-                unsafe_allow_html=True,
-            )
-            st.divider()
-            st.markdown("**🎙️ Facilitator guidance** (don't read aloud)")
-            st.markdown(inj["guidance"])
-    else:
-        st.info("This scenario has no injects authored yet.")
 
     # --- Capture ---
     st.divider()

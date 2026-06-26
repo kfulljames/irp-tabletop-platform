@@ -50,7 +50,7 @@
         "ord": 1,
         "title": "It came from us",
         "category": "Detection",
-        "room": "Finance confirms the client received an emailed invoice from a the MSP address with altered banking details. The email appears to have come from a real internal mailbox.",
+        "room": "Finance confirms the client received an emailed invoice from one of your company's own addresses with altered banking details. The email appears to have come from a real internal mailbox.",
         "guidance": "Now the concern is a compromised mailbox, not a billing error. Who investigates, and who decides to pull in IT/security? Watch for the team jumping to technical fixes \u2014 the executive job here is to confirm scope and assign an owner."
       },
       {

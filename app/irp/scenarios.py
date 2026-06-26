@@ -82,9 +82,9 @@ BEC = {
             "title": "It came from us",
             "category": "Detection",
             "room": (
-                "Finance confirms the client received an emailed invoice from a the MSP "
-                "address with altered banking details. The email appears to have come from a "
-                "real internal mailbox."
+                "Finance confirms the client received an emailed invoice from one of your "
+                "company's own addresses with altered banking details. The email appears to "
+                "have come from a real internal mailbox."
             ),
             "guidance": (
                 "Now the concern is a compromised mailbox, not a billing error. Who investigates, "

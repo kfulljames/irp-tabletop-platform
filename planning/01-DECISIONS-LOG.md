@@ -381,5 +381,23 @@ _Build round complete (B0–B15). Decisions are sufficient to draft `03-PRODUCT-
 **Answer:** **No team groups.** Mid-market clients aren't large enough to need group structures
 (Exigence has "Executive leadership / Response Team" groups). **Direct person → incident-role
 assignment is sufficient** (and already how the prototype works). Skip group hierarchy in v1.
+
+### B17 — Scenario library built out before Lovable (2026-06-26)
+**Answer:** **Author the decks in the prototype first, then hand off.** Before rebuilding in
+Lovable, fully author the scenario decks where they're cheap to iterate and runnable. Built three
+to BEC depth (8 facilitator-revealed injects, phase-grouped task library, incident-type summary
+block, executive-coordination focus — who decides / who to call, never technical how-to):
+**Ransomware + exfiltration (double extortion), Data breach / PII exposure, Insider threat /
+departing employee.** Library now = 4 decks (BEC + these 3). MSP supply-chain / RMM compromise
+deferred (offered, not chosen). Source of truth: `app/irp/scenarios.py`; mirrored for the rebuild
+in `lovable/scenarios-seed.json`.
+
+### Lovable handoff kit (2026-06-26)
+Prepared `lovable/` for the productization rebuild (Lovable regenerates from prompts, doesn't
+import code): `00-START-HERE.md`, `lovable-prompts.md` (staged build prompts), `supabase-schema.sql`
+(Postgres + auth + multi-tenant RLS — the real version of what B0 collapsed), `ai-prompts-and-seed.md`
+(calibrated gap-analysis + closing-notes prompts verbatim, baseline, UI constants),
+`scenarios-seed.json` (all 4 decks), `edge-functions.md` (API key moves server-side to Supabase
+Edge Functions — the one mandatory architectural change vs. the prototype).
 39. **Notifications** — does the tool simulate/send anything, or purely log? (Q13 leans: log only)
 40. **MVP cut** — the smallest first build that delivers a real engagement + report.

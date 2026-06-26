@@ -143,4 +143,5 @@ plan_maintenance_testing | Plan Maintenance, Testing & Training | How often the 
 - **Impact dimensions** (rating None/Low/Medium/High + explanation): `Operational, PR / Reputation, Legal / Regulatory, Financial`
 - **Incident roles**: `Incident Commander, Executive Sponsor (CEO), Comms Lead, Tech Lead, Finance Lead, Legal / Counsel Liaison, Client Experience Lead, Observer, Other`
 
-The BEC scenario seed (inject deck + task library + summary fields) is in `scenario-bec-seed.json`.
+All four scenario seeds (inject decks + task libraries + summary fields) are in
+`scenarios-seed.json`: BEC, Ransomware, Data Breach, Insider Threat.

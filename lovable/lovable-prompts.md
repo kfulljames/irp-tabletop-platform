@@ -29,9 +29,10 @@ Use Lovable's native Supabase integration to connect a project, then:
 Connect Supabase. Apply the schema in supabase-schema.sql exactly (tables, RLS policies, and the
 new-user trigger). This app is multi-tenant: a facilitator (auth user) belongs to a workspace and
 works across many client_orgs under it. All data access must go through the RLS policies in that
-file. After applying, seed the scenario library from scenario-bec-seed.json and the baseline
-chapters / UI constants from ai-prompts-and-seed.md §3–4 (insert the BEC scenario, its injects,
-and its tasks as global seed rows with workspace_id null).
+file. After applying, seed the scenario library from scenarios-seed.json (four scenarios: BEC,
+Ransomware, Data Breach, Insider Threat — each with its injects and tasks) and the baseline
+chapters / UI constants from ai-prompts-and-seed.md §3–4. Insert all scenarios, their injects,
+and their scenario_tasks as global seed rows with workspace_id null.
 ```
 
 ### Prompt 2 — auth + tenant context
@@ -85,7 +86,8 @@ Pass A (structure):
 ```
 Build the Run Exercise page for the active client. Two states:
 
-START: if no running run exists, show a setup form — pick a scenario (BEC), choose participants
+START: if no running run exists, show a setup form — pick a scenario (BEC, Ransomware, Data
+Breach, or Insider Threat), choose participants
 (multi-select from People, acting on their own behalf) and observers, pick a timezone (default
 America/Vancouver; all run timestamps use it). "Start exercise" creates a run (status=running),
 adds run_participants, seeds run_task rows from the scenario's scenario_task list, and logs an
@@ -154,4 +156,5 @@ Download Word (.docx, via the docx npm package, mirroring the 8 sections) and Do
 - Compare against the prototype screens for parity (the prototype is the spec of record).
 - Then pick up the deferred Exigence-inspired items if you want them: a guided "new engagement"
   wizard, and plan review cycles (6/12-month re-approval) feeding a readiness-trend view.
-- Author the Ransomware and Data-breach inject decks (the scaffolds exist; BEC is the template).
+- Four scenario decks ship in the seed (BEC, Ransomware, Data Breach, Insider Threat). Author
+  more (e.g. MSP supply-chain / RMM compromise) using BEC as the template.

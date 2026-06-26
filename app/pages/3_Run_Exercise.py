@@ -40,7 +40,7 @@ with st.expander(f"👥 People & roles  ·  {len(people)} on roster", expanded=n
     st.caption("Add the real people who'll take part. Scenarios use their actual names (Q9).")
     with st.form("add_person", clear_on_submit=True):
         cols = st.columns([3, 3, 3, 1])
-        name = cols[0].text_input("Full name", placeholder="e.g. the CEO")
+        name = cols[0].text_input("Full name", placeholder="e.g. Jordan Avery")
         title = cols[1].text_input("Title", placeholder="e.g. CEO")
         role = cols[2].selectbox("Incident role", INCIDENT_ROLES)
         cols[3].markdown("&nbsp;")

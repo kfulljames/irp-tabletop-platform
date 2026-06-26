@@ -5,6 +5,19 @@ settings.local.json
 # Scratch / generated extractions
 _tabletop_extracted.txt
 
+# Client / confidential documents and uploads — never commit real plans or PII
+*.pdf
+*.docx
+*.doc
+*.xlsx
+*.csv
+
+# Local prototype database (may contain real client data)
+app/data/
+*.db
+*.sqlite
+*.sqlite3
+
 # OS cruft
 Thumbs.db
 .DS_Store

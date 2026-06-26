@@ -12,7 +12,7 @@ st.caption("Each client is a separate organization (its own plans, contacts, run
 
 with st.form("new_client"):
     st.subheader("Add a client")
-    name = st.text_input("Organization name", placeholder="e.g. the MSP")
+    name = st.text_input("Organization name", placeholder="e.g. Acme Corp")
     industry = st.text_input("Industry (optional)", placeholder="e.g. Managed IT services")
     submitted = st.form_submit_button("Create client")
     if submitted:

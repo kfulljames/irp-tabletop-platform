@@ -2,7 +2,7 @@
 
 Linear, facilitator-revealed injects. Executive/coordination focus — judgment calls and
 who-to-contact, not technical how-to. BEC is fully seeded; Ransomware and Data-breach are
-scaffolded. Claude drafted these; the CTO + the PR partner refine later (B14).
+scaffolded. Claude drafted these; the MSP + PR partner refine later (B14).
 
 Each inject:
   title    — short label for the deck

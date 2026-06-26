@@ -2,11 +2,12 @@
 
 Planning and reference workspace for an **executive incident-response tabletop exercise
 platform** — software that runs facilitated tabletop exercises and produces SOC 2-grade,
-timestamped evidence reports, co-marketed with a PR partner (the PR partner) as an
+timestamped evidence reports, co-marketed with a PR partner as an
 emergency-preparedness package.
 
-> ⚠️ **Private repo — contains sensitive internal material** (real IRP/BCP plans with
-> contact PII, a sample incident report). Do not make public.
+> ℹ️ **De-identified planning workspace.** Real client plans, contact PII, and the sample
+> incident report have been removed; people, vendors, and the operating company are referred
+> to generically (e.g. "the MSP", "the PR partner").
 
 ## Where to start
 
@@ -20,13 +21,11 @@ See [`planning/`](planning/):
 | [03-PRODUCT-REQUIREMENTS.md](planning/03-PRODUCT-REQUIREMENTS.md) | Functional requirements + phased roadmap |
 | [04-REFERENCE-NOTES.md](planning/04-REFERENCE-NOTES.md) | Distilled notes from source docs + prior-art assessment |
 
-## Source / reference material (repo root)
+## Source / reference material
 
-- Exigence & Field Effect marketing PDFs (competitive reference)
-- `Incident Management Policy.pdf`, `Business Continuity And Disaster Recovery Procedures.pdf`
-  (the MSP IRP/BCP — gap-analysis baseline + contact-directory schema)
-- `5 2025 Tabletop May.docx` (a real Exigence-generated post-incident report — the evidence
-  report template)
+The original source documents (the operating company's IRP/BCP, competitor marketing PDFs,
+and a sample post-incident report) have been removed from the repo. Their reusable substance
+is distilled — de-identified — into [`04-REFERENCE-NOTES.md`](planning/04-REFERENCE-NOTES.md).
 
 ## Status
 

@@ -27,7 +27,7 @@ the **Lovable + Supabase** stack (B0). v1 = tabletop exercises; v2 = real incide
 
 **Explicitly deferred (fast-follow or v2):**
 - Tracked-changes redline rendering (post-v1; data captured now — B5).
-- Full white-label theming (Q36 — v1 ships the MSP/the PR partner co-brand; theming Phase 2, Q-D4).
+- Full white-label theming (Q36 — v1 ships MSP/PR-partner co-brand; theming Phase 2, Q-D4).
 - Automated cadence/reminders (Q29).
 - Two-way ControlMap sync (Q28), SMS/WhatsApp (Q39), real-incident mode (Q21), searchable
   incident knowledge base — all **v2**.
@@ -40,7 +40,7 @@ mapping (Q10 — general access only).
 
 ## 2. Architecture & stack (B0)
 
-> **v1 is a local prototype (revised B0).** v1 runs locally on the CTO's machine as the **simplest
+> **v1 is a local prototype (revised B0).** v1 runs locally on the owner's machine as the **simplest
 > prototype** that proves the core value flow; the Lovable + Supabase build below is the
 > **productization target**, reached via a deliberate rewrite — not built now. The data model
 > (§4) and roles (§3) describe the *target*; the prototype collapses them (single local
@@ -163,7 +163,7 @@ _Core tables. `*` = tenant-scoping column for RLS._
 - **B1** Three launch scenarios (BEC fully seeded; Ransomware + Data-breach scaffolded) (Q9/B14).
 - **B2** Injects = linear deck, optional facilitator guidance, role-slots (B7/B8/Q12).
 - **B3** Role-slots auto-bind to the org's named people at run prep; facilitator can override (B7).
-- **B4** In-app scenario/inject authoring (Q25); Claude drafts seed, the CTO + the PR partner refine (B14).
+- **B4** In-app scenario/inject authoring (Q25); Claude drafts seed, the MSP + PR partner refine (B14).
 - **B5** Reusable task/playbook library, grouped by phase/status (Q32/Q33).
 
 ### C. Live run
@@ -233,7 +233,7 @@ white-label theming; in-app authoring polish; richer trend dashboard; automated 
 
 **Phase 3 — v2 (real incident management):** live-incident mode; plan + directory offline
 availability; SMS/WhatsApp incident notifications; two-way ControlMap sync; searchable incident/
-exercise knowledge base; the holding company portfolio rollout.
+exercise knowledge base; parent-company portfolio rollout.
 
 ---
 
@@ -247,6 +247,6 @@ exercise knowledge base; the holding company portfolio rollout.
   attribution + evidence clean. No open self-join in v1.
 - **Q-D3 — Facilitator-delivered only.** Clients receive the exported report file; no client
   login to evidence/trend in v1 (Client Admins can still pre-fill setup data). Client portal = later.
-- **Q-D4 — Co-brand v1, theming Phase 2.** MVP ships a fixed the MSP/the PR partner co-brand; the full
+- **Q-D4 — Co-brand v1, theming Phase 2.** MVP ships a fixed MSP/PR-partner co-brand; the full
   white-label theming engine (Q36) is Phase 2. `branding_config` columns exist now so theming
   drops in without a schema change.

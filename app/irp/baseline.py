@@ -1,7 +1,7 @@
 """Canonical best-practice IRP baseline (decisions B3/B4, Q8/Q32).
 
 A single global set of chapters the AI gap analysis maps the client's plan against.
-Distilled from the IR-plan key chapters (04-REFERENCE-NOTES), the the MSP ITIL-based
+Distilled from the IR-plan key chapters (04-REFERENCE-NOTES), an ITIL-based
 Incident Management Policy, and CISA/HSEEP conventions. The client's uploaded plan is
 mapped into these chapters; missing or weak chapters surface as gaps.
 """

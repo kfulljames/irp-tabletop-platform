@@ -1,6 +1,6 @@
 # IRP Tabletop Platform — Project Overview
 
-_Last updated: 2026-06-25 • Owner: the CTO  (CTO, the MSP)_
+_Last updated: 2026-06-25 • Owner: the CTO (CTO, the MSP)_
 
 ## Status / progress
 
@@ -24,7 +24,7 @@ _Last updated: 2026-06-25 • Owner: the CTO  (CTO, the MSP)_
 
 A software platform that runs **executive incident-response tabletop exercises** and
 produces a **SOC 2-grade, timestamped evidence report** at the end. It is delivered as a
-**facilitated service** (the CTO/the MSP runs the sessions), co-marketed with a **PR firm
+**facilitated service** (the MSP runs the sessions), co-marketed with a **PR firm
 (the PR partner)** as an emergency-preparedness package, and sold **direct to the mid-market**.
 
 It is a **full replacement** for the team's current tooling (Exigence) — the platform runs
@@ -54,13 +54,13 @@ The incident is the vehicle. Differentiation lives entirely in the **decision la
 
 | Dimension | Decision |
 |---|---|
-| Operating model | Facilitated service — the CTO/the MSP runs sessions; software is the force-multiplier |
+| Operating model | Facilitated service — the MSP runs sessions; software is the force-multiplier |
 | Buyer / GTM | Mid-market, direct (the exec is the security decision-maker) |
 | Core wedge | **Readiness improvement over time**, measured by volume/severity of plan changes needed |
 | PR partner | **the PR partner** — builds the comms-heavy injects; co-markets emergency-preparedness package; goal is also to surface the PR partner's emergency services to clients |
 
 ### The central tension to keep managing
-A facilitated service capped by the CTO's calendar vs. a high-volume, lower-ACV mid-market
+A facilitated service capped by the owner's calendar vs. a high-volume, lower-ACV mid-market
 segment. **Resolution:** the software's #1 job is to collapse prep + reporting time per
 engagement so the service scales beyond one person's hours; the service is the wedge,
 productization (light-facilitation / licensable to other facilitators) is the trajectory.
@@ -82,14 +82,14 @@ productization (light-facilitation / licensable to other facilitators) is the tr
 
 ## Key people & entities (context)
 
-- **the MSP** (the company / first user). Parent: **the holding company** (the parent principal) — potential portfolio-wide distribution path.
-- Core team seen in the sample run: the CEO (CEO), the CTO  (CTO/acting CISO),
-  the CFO (CFO), the VP CX (VP Client Experience), the vCIO (vCIO), the VP Ops (VP
-  Ops), the lead engineer (Lead Engineer); alternates a senior engineer, a backup engineer.
-- **the PR partner** — PR partner for the product package.
-- the MSP's own incumbent vendors (useful as realism + the contact-directory schema): insurer
-  a cyber insurer, breach counsel breach counsel, forensics an IR firm / a SOC partner, negotiator
-  a ransom negotiator, DR a DR provider, ISP an ISP, incumbent PR an incumbent PR firm.
+- **The MSP** (the operating company / first user). Parent: a **holding company** —
+  potential portfolio-wide distribution path.
+- Core team seen in the sample run (roles, not names): CEO, CTO/acting CISO, CFO,
+  VP Client Experience, vCIO, VP Ops, Lead Engineer; plus named alternates.
+- **The PR partner** — co-marketing partner for the product package.
+- The MSP's own incumbent vendors (useful as realism + the contact-directory schema): a cyber
+  insurer, breach counsel, a forensics/IR firm, a ransom negotiator, a DR provider, an ISP,
+  and an incumbent PR firm.
 
 ## Document index (this folder)
 

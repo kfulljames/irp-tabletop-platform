@@ -4,9 +4,9 @@ _Source files live in the parent folder. This captures the reusable substance so
 re-derive it each session._
 
 ## Sample tabletop report — `5 2025 Tabletop May.docx`
-- A **real Exigence-generated post-incident report** from a BEC tabletop the CTO ran on
-  **2025-05-26**, 1:02–1:42 PM (39 min total, 2 min response).
-- Scenario: client paid the MSP; funds never received; routing numbers changed 3 months prior;
+- A **real Exigence-generated post-incident report** from a BEC tabletop the MSP ran
+  (≈39 min total, 2 min response).
+- Scenario: a client paid funds to fraudulent details; funds never received; routing numbers changed 3 months prior;
   $20,000 lost, 1 mailbox compromised, O365 cloud, funds not recovered, source = "our system."
 - This is the **template for the evidence report** (see 02-EVIDENCE-REPORT-SPEC.md).
 - Demonstrated structure: Incident Summary → Exec Summary + Closing Notes → went right/wrong/
@@ -15,8 +15,8 @@ re-derive it each session._
 - Timeline categories: Incident Start, Invitation, Team, Overview Update, Status Update,
   **Business Decision**, Internal Update, Resolution.
 
-## the MSP Incident Management Policy (IRP)
-- Based on **ITIL v4**. Owner the IT lead; approved by the CTO.
+## Incident Management Policy (IRP) — sample
+- Based on **ITIL v4**. Owner: the IT/policy lead; approved by the CTO.
 - Lifecycle: prepare → identify/report → assign → analyze/resolve → resolution comms →
   review/learnings. (Good basis for the **best-practice gap baseline**.)
 - **Classification + SLAs** (use for severity model):
@@ -31,27 +31,27 @@ re-derive it each session._
   improvements; corrective actions; precursors to watch.
 - Senior management notified **before** customers; affected customers within **24h**.
 
-## the MSP Business Continuity & DR Procedures (BCP)
+## Business Continuity & DR Procedures (BCP) — sample
 - DR workflow: occurrence → declaration (by exec team) → communicate → recovery → postmortem.
 - **DR team table schema** (use for setup wizard + directory): Position | Responsibilities |
   Name & Contact | Alternates.
-  - CEO the CEO (decision-making + PR/comms lead); alt the CTO
-  - CTO/acting CISO the CTO (diagnosis/containment/restoration); alt a senior engineer
-  - Lead Engineer the lead engineer; alt a backup engineer
+  - CEO (decision-making + PR/comms lead); alt the CTO
+  - CTO/acting CISO (diagnosis/containment/restoration); alt a senior engineer
+  - Lead Engineer; alt a backup engineer
 - **Third-party directory** (rich — model the contact schema + realism on this):
-  - Cyber insurer: **a cyber insurer** (a broker contact; a broker contact)
-  - Legal counsel: **breach counsel**
-  - Forensics: **a SOC partner**, **an IR firm** (evergreen partnership)
-  - Breach notification / call center; Credit/identity monitoring (an identity-monitoring provider, an identity-monitoring provider, etc.)
-  - ISP: **an ISP**
-  - **PR/Comms: an incumbent PR firm** (incumbent — NOT the product partner; product partner is **the PR partner**)
-  - Crisis mgmt: a crisis-management firm / a crisis-management firm / a crisis-management firm
-  - Forensic accounting; **Negotiator: a ransom negotiator**; Cyber partner: a SOC partner; **DR: a DR provider**
-  - Law enforcement: VPD, Toronto PD, RCMP AntiFraud, CSIS, Canadian Centre for Cyber Security
-  - Parent: **the holding company** (the parent principal, President/COO)
+  - Cyber insurer (with named broker contacts)
+  - Legal / breach counsel
+  - Forensics: a SOC partner + an IR firm (evergreen partnership)
+  - Breach notification / call center; credit / identity-monitoring providers
+  - ISP
+  - **PR/Comms:** an incumbent PR firm (NOT the product partner; the product partner is **the PR partner**)
+  - Crisis-management firms (several evaluated)
+  - Forensic accounting; a ransom negotiator; a cyber/SOC partner; a DR provider
+  - Law enforcement: local police, national anti-fraud reporting, and the national cyber-security centre
+  - Parent: the holding company (a President/COO contact)
 - Recovery procedures per type (Security breach/DoS/Ransomware; Infrastructure; Personnel;
   Physical; Pandemic) each with steps + people responsible + **RTO/RPO objectives**.
-- Region: **Vancouver-based** (the MSP is a Vancouver company); Canadian context.
+- Region: **Canadian** context (a regional MSP).
 
 ## Exigence (competitor we're replacing) — marketing docs
 - Practitioner platform; multi-tenant for MSPs/MSSPs/IR firms + IT/security teams.

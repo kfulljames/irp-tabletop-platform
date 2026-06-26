@@ -7,7 +7,7 @@ the recorded answer is what governs. Status: **40 of 40 answered — series comp
 
 | # | Decision | Answer |
 |---|---|---|
-| S1 | Operating model | **Facilitated service** — the CTO/the MSP runs every session; software is internal force-multiplier |
+| S1 | Operating model | **Facilitated service** — the MSP runs every session; software is internal force-multiplier |
 | S2 | Buyer / GTM | **Mid-market, direct** — the exec is the security decision-maker |
 | S3 | Core wedge | **Readiness improvement over time** |
 
@@ -120,7 +120,7 @@ decisions. Distinct from act-as participants.
 ### Q20 — Facilitator guidance
 **Answer:** **Yes — per-inject teleprompter.** Each inject carries facilitator-only guidance:
 what to look for, "what good looks like," suggested probing questions. **This is the
-scaling mechanism** — lets a trained non-the CTO facilitator run a quality session, supporting the
+scaling mechanism** — lets a trained non-owner facilitator run a quality session, supporting the
 productization/light-facilitation trajectory (S1 tension resolution).
 
 ### Q21 — Real-incident mode
@@ -207,7 +207,7 @@ participant view for distributed teams. (Pairs with Q38 light participant view.)
 any facilitator/partner can run it under their own brand — directly supports the
 **productization / licensable-to-other-facilitators trajectory (S1 resolution).** Per-client
 branding on reports falls out of this. → Build implication: branding is a first-class
-per-tenant config (logo, colors, report cover), not hardcoded the MSP/the PR partner.
+per-tenant config (logo, colors, report cover), not hardcoded MSP/PR-partner.
 
 ### Q37 — the PR partner inject ownership
 **Answer:** **the MSP authors everything.** the PR partner supplies comms/PR content **offline**; the CTO/
@@ -252,7 +252,7 @@ roadmap (`03-PRODUCT-REQUIREMENTS.md`) and the report spec (`02-EVIDENCE-REPORT-
 _Targeted round to de-risk the build before drafting requirements. Numbered B1+._
 
 ### B0 — Build stack
-**Answer (revised 2026-06-25):** **v1 = simplest local prototype on the CTO's machine; rewrite into
+**Answer (revised 2026-06-25):** **v1 = simplest local prototype on the owner's machine; rewrite into
 Lovable later.** _(Was: build directly in Lovable + Supabase.)_ Run v1 locally to prove the core
 value flow fast and keep client plans/evidence on-machine (also sidesteps parked Q24 residency for
 now). **Lovable + Supabase remains the productization target** — the full data model in
@@ -271,7 +271,7 @@ Lovable move is a **rewrite**, not a lift-and-shift.
 - Concrete prototype stack: **Python + Streamlit + SQLite** (B0a).
 
 ### B0a — Concrete prototype stack
-**Answer:** **Python + Streamlit + SQLite**, chosen by Claude on the CTO's behalf (the CTO is
+**Answer:** **Python + Streamlit + SQLite**, chosen by Claude on the owner's behalf (the CTO is
 non-technical, asked for the simplest thing to actually run). Rationale: Streamlit opens in the
 browser and behaves like a normal web app (forms/buttons, no terminal after launch); strong PDF
 parsing (`pypdf`) and the official `anthropic` SDK; can generate Word/PDF later (`python-docx`,
@@ -308,7 +308,7 @@ later. The canonical schema (B3) and this baseline are the same backbone.
 ### B5 — Plan-change output
 **Answer:** **Punch-list only for v1**; full tracked-changes redline rendering deferred
 post-v1. _(Refines Q14 — Q14 included an actual redlined IRP; v1 ships the actionable
-punch-list of changes by section, redline doc comes later. Consistent with the CTO's Q15 note:
+punch-list of changes by section, redline doc comes later. Consistent with the owner's Q15 note:
 "whether it's a redline version or just notes that need to be updated later.")_ → Still capture
 changes as **discrete change-items tied to a plan section** (owner/severity/recommended change)
 so a redline renderer can be added later over the same records without rework.
@@ -330,7 +330,7 @@ while feeling real.
 the room **plus an optional teleprompter/guidance field**. Seed scenarios may ship with light or
 no guidance now; the field exists structurally so guidance can be added as the service scales to
 other facilitators. Squares the "minimal to author" instinct with Q20 (teleprompter is the
-non-the CTO scaling mechanism) — Q20 stands, just not mandatory per inject.
+non-owner scaling mechanism) — Q20 stands, just not mandatory per inject.
 
 ### B9 — Run-time capture model
 **Answer:** **Typed capture.** Distinct, structured capture types matching the sample timeline:
@@ -362,9 +362,9 @@ their own device (in-room or remote, B11); recorded by name (Q30); facilitator c
 on someone's behalf via act-as (Q6). Report shows distribution + average.
 
 ### B14 — Seed scenario content
-**Answer:** **Claude drafts, the CTO + the PR partner refine.** I draft the 3 launch scenarios (BEC,
-Ransomware, Data breach, Q9) as structured inject decks from CISA CTEP + the the MSP May sample;
-the CTO + the PR partner refine (esp. comms injects) in-app via the authoring UI (Q25). Fast seed path.
+**Answer:** **Claude drafts, the MSP + PR partner refine.** I draft the 3 launch scenarios (BEC,
+Ransomware, Data breach, Q9) as structured inject decks from CISA CTEP + the MSP May sample;
+the MSP + PR partner refine (esp. comms injects) in-app via the authoring UI (Q25). Fast seed path.
 
 ### B15 — AI usage guardrails
 **Answer:** **AI suggests, human approves; Anthropic API.** AI only drafts/suggests (closing

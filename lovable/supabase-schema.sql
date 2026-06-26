@@ -3,7 +3,7 @@
 -- Ports the local SQLite prototype (app/irp/db.py) to Postgres and adds the
 -- things the prototype skipped per decision B0: real auth, multi-tenant orgs,
 -- and Row-Level Security. A "tenant"/"client" here = the MSP's customer being
--- exercised; a "facilitator" = a the MSP staff member (auth user) who can work
+-- exercised; a "facilitator" = an MSP staff member (auth user) who can work
 -- across many client orgs.
 --
 -- Run this in the Supabase SQL editor. Safe to run once on a fresh project.
@@ -16,7 +16,7 @@ create table if not exists profile (
   created_at  timestamptz not null default now()
 );
 
--- ---- Workspace = the the MSP tenant (white-label owner) -------------------
+-- ---- Workspace = the MSP tenant (white-label owner) -------------------
 -- One workspace per MSP. Facilitators belong to a workspace; client_orgs live
 -- under it. (For a single-MSP launch you'll have exactly one workspace row.)
 create table if not exists workspace (

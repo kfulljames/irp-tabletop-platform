@@ -11,7 +11,7 @@ pile features into one prompt. When a screen references data shapes, point Lovab
 ```
 Build an internal web app called "IRP Tabletop Platform" for running executive incident-response
 tabletop exercises and producing SOC 2-grade evidence reports. It's a facilitation tool used by a
-managed-service provider (the MSP) to run a live exercise with a client's leadership
+managed-service provider to run a live exercise with a client's leadership
 team, then export an evidence report.
 
 Use a clean, professional dark UI with shadcn/ui + Tailwind. Calm, enterprise feel — not playful.
